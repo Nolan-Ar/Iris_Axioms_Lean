@@ -119,20 +119,20 @@ theorem T3_thermometre_equilibre (rad : RAD)
 -/
 theorem T4_etat_stationnaire_possible :
     ∃ sys : SystemState, sys.V_total ≥ 0 ∧ sys.D_total ≥ 0 ∧ sys.V_total = sys.V_on + sys.V_immo := by
-  -- On peut construire un état trivial où tout est nul
+  -- On construit un état non trivial avec des valeurs réalistes
   let sys : SystemState :=
     { utilisateurs := []
       entreprises := []
-      V_total := 0
-      D_total := 0
-      V_on := 0
-      V_immo := 0
-      cycle_actuel := 0
-      h_conservation := by simp
-      h_V := by simp
-      h_D := by simp
-      h_V_on := by simp
-      h_V_immo := by simp }
+      V_total := 1000000  -- 1M de valeur initiale
+      D_total := 1000000  -- Passif correspondant
+      V_on := 700000      -- 70% en circulation
+      V_immo := 300000    -- 30% immobilisé
+      cycle_actuel := 42
+      h_conservation := by norm_num
+      h_V := by norm_num
+      h_D := by norm_num
+      h_V_on := by norm_num
+      h_V_immo := by norm_num }
   refine ⟨sys, ?_, ?_, ?_⟩
   · -- V_total ≥ 0
     simpa using sys.h_V
@@ -190,11 +190,16 @@ theorem T7_pas_double_depense
     (cu : CompteUtilisateur)
     (tx1 tx2 : Transaction)
     (h_depassement : tx1.montant + tx2.montant > cu.wallet_V) :
-    ¬ (ValidSig cu tx1 ∧ ValidSig cu tx2 ∧
-        cu.wallet_V ≥ tx1.montant + tx2.montant) := by
+    ¬ (ValidSig cu tx1 ∧ ValidSig cu tx2 ∧ cu.wallet_V ≥ tx1.montant + tx2.montant) := by
   intro h
-  rcases h with ⟨_, _, h_cover⟩
-  exact (not_le_of_gt h_depassement) h_cover
+  rcases h with ⟨h_sig1, h_sig2, h_cover⟩
+  -- Contradiction entre h_depassement (>) et h_cover (≥)
+  have h_contra : tx1.montant + tx2.montant ≤ cu.wallet_V := by
+    linarith [h_cover]
+  -- La contradiction est maintenant explicite
+  linarith [h_depassement, h_contra]
+
+
 
 
 /-! ## T8 : Protection contre faillite entreprise
@@ -260,11 +265,12 @@ theorem T11_conversion_bornee
   ΔV_avance = ΔD_stack (neutralité)
 -/
 theorem T12_stacking_conservatif
-    (stack : Stacking) (D_stack : ℝ)
-    (h_eq : stack.montant_initial = D_stack) :
-    stack.montant_initial = D_stack := by
-  -- C'est simplement l'égalité donnée en argument, qui reflète A17.
-  exact h_eq
+    (stack : Stacking) (D_stack : ℝ) :
+    let V_avance := stack.montant_initial
+    V_avance = D_stack := by
+  intro V_avance
+  -- Application directe de l'axiome de neutralité du stacking
+  exact A17_stacking_neutre stack D_stack
 
 /-! ## T13 : Distribution organique totale
 
@@ -294,6 +300,7 @@ theorem T14_thermometre_bien_defini (rad : RAD) :
 
   A20 donne à la fois des règles d’ajustement et la borne 0.5 ≤ η_apres ≤ 2.0.
 -/
+
 theorem T15_eta_borne
     (r_t η_avant η_apres : ℝ)
     (h_ajust :
@@ -301,9 +308,9 @@ theorem T15_eta_borne
       (r_t < 0.85 → η_apres > η_avant) ∧
       0.5 ≤ η_apres ∧ η_apres ≤ 2.0) :
     0.5 ≤ η_apres ∧ η_apres ≤ 2.0 := by
-  -- Dans A ∧ B ∧ C, Lean lit A ∧ (B ∧ C),
-  -- donc h_ajust.right.right est exactement C : 0.5 ≤ η_apres ∧ η_apres ≤ 2.0.
-  exact h_ajust.right.right
+  -- On extrait explicitement la conjonction des bornes
+  obtain ⟨h1, h2, h3, h4⟩ := h_ajust
+  exact ⟨h3, h4⟩
 
 /-! ## T16 : Circulation forcée de la trésorerie
 

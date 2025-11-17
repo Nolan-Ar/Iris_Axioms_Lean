@@ -102,7 +102,7 @@ theorem test_distribution_effective
   (_U_t : ℝ)
   (beneficiaires : List CompteUtilisateur)
   (alloc : CompteUtilisateur → ℝ)
-  (h_pos : ∀ cu ∈ beneficiaires, 0 ≤ alloc cu) :
+  (h_pos : ∀ cu, cu ∈ beneficiaires → 0 ≤ alloc cu) :  -- CORRIGÉ
   (beneficiaires.attach.map (fun ⟨cu,_⟩ => alloc cu)).sum = _U_t :=
   A12_distribution_RU _U_t beneficiaires alloc h_pos
 
@@ -111,7 +111,7 @@ theorem test_allocation_positive
   (_U_t : ℝ)
   (beneficiaires : List CompteUtilisateur)
   (alloc : CompteUtilisateur → ℝ)
-  (h_pos : ∀ cu ∈ beneficiaires, 0 ≤ alloc cu)
+  (h_pos : ∀ cu, cu ∈ beneficiaires → 0 ≤ alloc cu)  -- CORRIGÉ
   (cu : CompteUtilisateur)
   (h_mem : cu ∈ beneficiaires) :
   0 ≤ alloc cu :=
@@ -262,7 +262,7 @@ theorem validation_complete :
   (∀ v : Valeurs, 0 ≤ v.D) ∧
   -- Correctif 3 : Distribution RU
   (∀ (U_t : ℝ) (beneficiaires : List CompteUtilisateur) (alloc : CompteUtilisateur → ℝ),
-    (∀ cu ∈ beneficiaires, 0 ≤ alloc cu) →
+    (∀ cu, cu ∈ beneficiaires → 0 ≤ alloc cu) →  -- CORRIGÉ
     (beneficiaires.attach.map (fun ⟨cu,_⟩ => alloc cu)).sum = U_t) := by
   constructor
   · intro η_phys μ_social h_phys h_social η

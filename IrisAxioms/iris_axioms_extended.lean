@@ -367,7 +367,7 @@ axiom A18_transfert_engagement
   (ancien_proprio nouveau_proprio : CompteUtilisateur) :
   nft.hash = stack.nft_lie_hash →
   -- Transfert NFT implique transfert engagement
-  True  -- Représentation simplifiée
+  True  -- Représentation simplifiée (garder pour compatibilité)
 
 /-! # Section 6 : NOUVEAUX AXIOMES - Régulation Thermométrique (A19-A20) -/
 
