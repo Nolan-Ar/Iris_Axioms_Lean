@@ -1,0 +1,63 @@
+# Lean 4 build artifacts
+/.lake/
+/build/
+/lake-packages/
+*.olean
+*.trace
+
+# Lake lock file (généralement versionné, mais peut être ignoré si souhaité)
+# lake-manifest.json
+
+# VS Code settings (optionnel - décommenter si vous ne voulez pas les versionner)
+# .vscode/
+
+# Elan (gestionnaire de versions Lean)
+/.elan/
+
+# Fichiers temporaires de l'éditeur
+*~
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Fichiers de cache
+.cache/
+__pycache__/
+*.pyc
+
+# Fichiers de configuration locale
+.env
+.env.local
+
+# Sortie de compilation
+/bin/
+/obj/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Fichiers IDE
+.idea/
+*.iml
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Documentation générée (si vous utilisez doc-gen4)
+/docs/
+/.docs/
+
+# Fichiers temporaires de test
+/test-output/
+/test-results/
