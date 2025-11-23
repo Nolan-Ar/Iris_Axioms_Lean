@@ -2,7 +2,7 @@
 
 Formalisation mathématique des axiomes IRIS (Integrated Resource Information System) en Lean 4, avec preuves vérifiées de cohérence et de propriétés économiques.
 
-## 📋 Description
+## Description
 
 Ce projet formalise un système économique basé sur :
 - **Axiomes fondamentaux** : Conservation monétaire, distribution du revenu universel, inviolabilité
@@ -11,7 +11,7 @@ Ce projet formalise un système économique basé sur :
 - **Échange d'énergie** : Modélisation des flux énergétiques
 - **NFTs et généalogie** : Traçabilité cryptographique
 
-## 🚀 Installation rapide
+## Installation rapide
 
 ### Prérequis
 
@@ -67,7 +67,7 @@ lake build
 
 **Note** : La première compilation peut prendre **20-40 minutes** car Mathlib (la bibliothèque mathématique standard de Lean) doit être compilée.
 
-## 🛠️ Utilisation
+## Utilisation
 
 ### Compiler le projet
 
@@ -113,7 +113,7 @@ make build
    - De l'autocomplétion
    - Des infobulles pour les théorèmes
 
-## 📁 Structure du projet
+## Structure du projet
 
 ```
 Iris_Axioms_Lean/
@@ -135,7 +135,7 @@ Iris_Axioms_Lean/
 └── README.md                            # Ce fichier
 ```
 
-## 📚 Modules principaux
+## Modules principaux
 
 ### 1. `iris_axioms.lean`
 Définit les axiomes fondamentaux :
@@ -168,7 +168,7 @@ Modélisation des flux énergétiques :
 - Équivalence énergie-monnaie
 - Efficacité des transferts
 
-## 🧪 Exemples d'utilisation
+## Exemples d'utilisation
 
 ### Créer une transaction
 
@@ -200,7 +200,7 @@ theorem conservation_exemple : ∃ v : Valeurs, v.S + v.U + v.V + v.D = 0 := by
   norm_num
 ```
 
-## 🔧 Commandes utiles
+## Commandes utiles
 
 ```bash
 # Compiler rapidement (sans Mathlib)
@@ -219,7 +219,7 @@ lake env lean --run search_tool.lean
 lake exe format
 ```
 
-## 🐛 Résolution de problèmes
+## Résolution de problèmes
 
 ### Erreur : `lake: command not found`
 
@@ -252,14 +252,14 @@ Mathlib nécessite beaucoup de RAM. Si compilation échoue :
 - Augmenter le swap système
 - Compiler module par module au lieu de `lake build`
 
-## 📖 Documentation Lean
+## Documentation Lean
 
 - [Manuel Lean 4](https://lean-lang.org/lean4/doc/)
 - [Mathlib Docs](https://leanprover-community.github.io/mathlib4_docs/)
 - [Theorem Proving in Lean 4](https://lean-lang.org/theorem_proving_in_lean4/)
 - [Lean Zulip Chat](https://leanprover.zulipchat.com/) (communauté)
 
-## 🤝 Contribution
+## Contribution
 
 1. Fork le projet
 2. Créer une branche (`git checkout -b feature/amelioration`)
@@ -274,17 +274,17 @@ Mathlib nécessite beaucoup de RAM. Si compilation échoue :
 - **Nomenclature** : CamelCase pour les types, snake_case pour les définitions
 - **Tests** : Exemples numériques dans `iris_exemples_numeriques.lean`
 
-## 📜 Licence
+## Licence
 
 [À définir selon votre projet]
 
-## 📧 Contact
+## Contact
 
 Pour toute question ou suggestion, ouvrir une issue sur GitHub.
 
 ---
 
-**Statut** : ✅ Toutes les preuves sont vérifiées et complètes (sans `sorry`)
+**Statut** : Toutes les preuves sont vérifiées et complètes (sans `sorry`)
 
 **Version Lean** : 4.24.0
 **Version Mathlib** : 4.24.0
