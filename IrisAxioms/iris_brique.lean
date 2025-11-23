@@ -1,9 +1,9 @@
 /-
-  Théorème des Contrats Clos
-  Regroupe plusieurs garanties fondamentales d’IRIS :
-  - inviolabilité des transactions,
-  - distribution effective du RU,
-  - conservation de la valeur.
+  Closed Contracts Theorem
+  Groups several fundamental IRIS guarantees:
+  - inviolability of transactions,
+  - effective UBI distribution,
+  - value conservation.
 -/
 
 import Mathlib.Data.Real.Basic
@@ -16,17 +16,17 @@ open IrisAxioms
 namespace IrisTheoremes
 
 /--
-Théorème des contrats clos :
-simple regroupement de trois axiomes IRIS clés.
+Closed contracts theorem:
+simple grouping of three key IRIS axioms.
 -/
 theorem contrat_clos :
-    -- Inviolabilité des transactions
+    -- Inviolability of transactions
     (∀ (cu : CompteUtilisateur) (tx : Transaction), ValidSig cu tx) ∧
-    -- Distribution effective du RU
+    -- Effective UBI distribution
     (∀ (U_t : ℝ) (beneficiaires : List CompteUtilisateur) (alloc : CompteUtilisateur → ℝ),
         (∀ cu ∈ beneficiaires, 0 ≤ alloc cu) →
         (beneficiaires.attach.map (fun ⟨cu, _⟩ => alloc cu)).sum = U_t) ∧
-    -- Conservation de la valeur fondamentale
+    -- Fundamental value conservation
     (∀ (v : Valeurs), 0 ≤ v.V ∧ 0 ≤ v.D) := by
   constructor
   · exact A3_inviolabilite_transactions
@@ -36,42 +36,42 @@ theorem contrat_clos :
   · intro v
     exact A10_conservation_thermodynamique v.V v.D
 
-/-- Les transactions sont toujours valides et signées. -/
+/-- Transactions are always valid and signed. -/
 theorem transactions_toujours_valides :
     ∀ (cu : CompteUtilisateur) (tx : Transaction), ValidSig cu tx :=
   (contrat_clos).left
 
-/-- Le revenu universel est toujours distribué intégralement. -/
+/-- Universal basic income is always fully distributed. -/
 theorem RU_toujours_distribue :
     ∀ (U_t : ℝ) (beneficiaires : List CompteUtilisateur) (alloc : CompteUtilisateur → ℝ),
       (∀ cu ∈ beneficiaires, 0 ≤ alloc cu) →
       (beneficiaires.attach.map (fun ⟨cu, _⟩ => alloc cu)).sum = U_t :=
   (contrat_clos).right.left
 
-/-- La valeur vivante et le passif D restent non négatifs. -/
+/-- Living value and liability D remain non-negative. -/
 theorem valeurs_toujours_positives :
     ∀ (v : Valeurs), 0 ≤ v.V ∧ 0 ≤ v.D :=
   (contrat_clos).right.right
 
 /--
-Version étendue qui ajoute deux autres axiomes :
-- absence d’émission par la dette,
-- exclusion stricte de U des comptes entreprise.
+Extended version that adds two other axioms:
+- absence of debt emission,
+- strict exclusion of U from enterprise accounts.
 -/
 theorem contrat_clos_etendu :
-    -- Inviolabilité de base
+    -- Basic inviolability
     (∀ (cu : CompteUtilisateur) (tx : Transaction), ValidSig cu tx) ∧
-    -- Distribution effective
+    -- Effective distribution
     (∀ (U_t : ℝ) (beneficiaires : List CompteUtilisateur) (alloc : CompteUtilisateur → ℝ),
         (∀ cu ∈ beneficiaires, 0 ≤ alloc cu) →
         (beneficiaires.attach.map (fun ⟨cu, _⟩ => alloc cu)).sum = U_t) ∧
-    -- Conservation fondamentale
+    -- Fundamental conservation
     (∀ (v : Valeurs), 0 ≤ v.V ∧ 0 ≤ v.D) ∧
-    -- Absence d'émission par dette
+    -- Absence of debt emission
     (∀ (U_t V_on ρ : ℝ) (T N : ℕ),
         (0 ≤ ρ ∧ ρ ≤ 0.3) → (0 < T ∧ 0 < N) → 0 ≤ V_on →
         U_t = (1 - ρ) * V_on / ((T : ℝ) * (N : ℝ)) ∧ 0 ≤ U_t) ∧
-    -- Exclusion stricte de U pour entreprises
+    -- Strict exclusion of U for enterprises
     (∀ (ce : CompteEntreprise), 0 ≤ ce.tresorerie_V) := by
   constructor
   · exact A3_inviolabilite_transactions
@@ -85,4 +85,3 @@ theorem contrat_clos_etendu :
   · exact A4_exclusion_U_entreprise
 
 end IrisTheoremes
-

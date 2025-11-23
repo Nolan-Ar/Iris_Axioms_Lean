@@ -6,15 +6,15 @@ namespace IrisEnergyExchange
 
 open IrisAxiomsExtended
 
-/-- Définition explicite de la valeur créée lors d’un échange énergétique,
-    dans l’esprit de l’axiome A6. -/
+/-- Explicit definition of the value created during an energy exchange,
+    in the spirit of axiom A6. -/
 def deltaV (η_phys μ_social Δt w_S w_U S_burn U_burn : ℝ) : ℝ :=
   let η := η_phys * μ_social
   let Et := w_S * S_burn + w_U * U_burn
   η * Δt * Et
 
-/-- Forme fonctionnelle de A6 : sous ses hypothèses,
-    la valeur créée est toujours ≥ 0. -/
+/-- Functional form of A6: under its hypotheses,
+    the created value is always ≥ 0. -/
 theorem deltaV_nonneg_from_axiom
     (η_phys μ_social Δt w_S w_U S_burn U_burn : ℝ)
     (h_phys : 0 < η_phys ∧ η_phys ≤ 1)
@@ -29,11 +29,11 @@ theorem deltaV_nonneg_from_axiom
   simpa [deltaV] using h
 
 /--
-Théorème de monotonie de l’échange d’énergie :
+Energy exchange monotonicity theorem:
 
-À coefficients fixés (η_phys, μ_social, Δt, w_S, w_U) satisfaisant A6,
-si l’on augmente à la fois S_burn et U_burn, la valeur créée ΔV
-ne peut pas diminuer.
+With fixed coefficients (η_phys, μ_social, Δt, w_S, w_U) satisfying A6,
+if we increase both S_burn and U_burn, the created value ΔV
+cannot decrease.
 -/
 theorem deltaV_mono
     (η_phys μ_social Δt w_S w_U S₁ S₂ U₁ U₂ : ℝ)
@@ -47,13 +47,13 @@ theorem deltaV_mono
       ≤ deltaV η_phys μ_social Δt w_S w_U S₂ U₂ := by
   have h_wS_nonneg : 0 ≤ w_S := h_convexe.2.1
   have h_wU_nonneg : 0 ≤ w_U := h_convexe.2.2
-  -- comparaison des énergies Et₁ et Et₂
+  -- comparison of energies Et₁ and Et₂
   have hE :
       w_S * S₁ + w_U * U₁ ≤ w_S * S₂ + w_U * U₂ := by
     have h1 := mul_le_mul_of_nonneg_left hS h_wS_nonneg
     have h2 := mul_le_mul_of_nonneg_left hU h_wU_nonneg
     linarith
-  -- facteur multiplicatif non négatif
+  -- non-negative multiplicative factor
   have hη_nonneg : 0 ≤ η_phys := le_of_lt h_phys.1
   have hμ_nonneg : 0 ≤ μ_social := by
     have : (0 : ℝ) ≤ 1 := by norm_num
@@ -62,23 +62,23 @@ theorem deltaV_mono
   have h_factor_nonneg : 0 ≤ η_phys * μ_social * Δt := by
     have hημ_nonneg := mul_nonneg hη_nonneg hμ_nonneg
     exact mul_nonneg hημ_nonneg hΔt_nonneg
-  -- on multiplie l’inégalité sur Et par ce facteur
+  -- multiply the inequality on Et by this factor
   have := mul_le_mul_of_nonneg_left hE h_factor_nonneg
-  -- réécriture en termes de deltaV
+  -- rewrite in terms of deltaV
   simpa [deltaV, mul_left_comm, mul_assoc, mul_comm] using this
 
 /--
-Additivité de la création de valeur :
+Additivity of value creation:
 
-Deux échanges successifs avec les mêmes coefficients sont équivalents,
-du point de vue énergétique, à un échange unique portant sur la somme
-des Stipulats et des U brûlés. -/
+Two successive exchanges with the same coefficients are equivalent,
+from an energetic perspective, to a single exchange for the sum
+of burned Stipulats and U. -/
 theorem deltaV_additive
     (η_phys μ_social Δt w_S w_U S₁ S₂ U₁ U₂ : ℝ) :
     deltaV η_phys μ_social Δt w_S w_U (S₁ + S₂) (U₁ + U₂)
       = deltaV η_phys μ_social Δt w_S w_U S₁ U₁
         + deltaV η_phys μ_social Δt w_S w_U S₂ U₂ := by
-  -- preuve purement algébrique
+  -- purely algebraic proof
   simp [deltaV, add_left_comm, add_assoc, mul_add, mul_assoc]
 
 end IrisEnergyExchange

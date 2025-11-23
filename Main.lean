@@ -10,4 +10,4 @@ import IrisAxioms.iris_incomplete_contracts
 import IrisAxioms.iris_energy_exchange
 
 def main : IO Unit := do
-  IO.println "IRIS compilé. Toutes les preuves ont été vérifiées "
+  IO.println "IRIS compiled. All proofs have been verified"

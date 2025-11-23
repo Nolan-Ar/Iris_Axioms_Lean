@@ -11,8 +11,8 @@ open IrisAxiomsExtended
 set_option linter.unusedVariables false
 set_option linter.unnecessarySimpa false
 
-/-- Contrat éventuellement incomplet :
-    à chaque état du monde ω on associe soit un résultat, soit rien. -/
+/-- Potentially incomplete contract:
+    for each state of the world ω we associate either a result, or nothing. -/
 structure Contract (ω : Type u) (Outcome : Type v) where
   alloc : ω → Option Outcome
 
@@ -20,15 +20,15 @@ namespace Contract
 
 variable {ω : Type u} {Outcome : Type v}
 
-/-- Un contrat est complet s’il spécifie un résultat pour tout état. -/
+/-- A contract is complete if it specifies a result for every state. -/
 def complete (c : Contract ω Outcome) : Prop :=
   ∀ s, c.alloc s ≠ none
 
-/-- Un contrat est incomplet s’il reste au moins un état non spécifié. -/
+/-- A contract is incomplete if at least one state remains unspecified. -/
 def incomplete (c : Contract ω Outcome) : Prop :=
   ¬ complete c
 
-/-- Raffinement : c₂ prolonge c₁ sans changer les issues déjà définies. -/
+/-- Refinement: c₂ extends c₁ without changing already defined outcomes. -/
 def refines (c₁ c₂ : Contract ω Outcome) : Prop :=
   ∀ s o, c₁.alloc s = some o → c₂.alloc s = some o
 
@@ -43,8 +43,8 @@ lemma refines_trans {c₁ c₂ c₃ : Contract ω Outcome}
   have h₂ : c₂.alloc s = some o := h₁₂ s o h
   exact h₂₃ s o h₂
 
-/-- Complétion d’un contrat en ajoutant une issue par défaut
-    à tous les états auparavant non spécifiés. -/
+/-- Completion of a contract by adding a default outcome
+    to all previously unspecified states. -/
 def completion (c : Contract ω Outcome) (default : Outcome) :
     Contract ω Outcome where
   alloc s :=
@@ -54,30 +54,30 @@ def completion (c : Contract ω Outcome) (default : Outcome) :
 
 lemma completion_complete (c : Contract ω Outcome) (default : Outcome) :
     complete (completion c default) := by
-  -- unfold la définition de `complete`
+  -- unfold the definition of `complete`
   intro s
-  -- but : (completion c default).alloc s ≠ none
+  -- goal: (completion c default).alloc s ≠ none
   cases h : c.alloc s <;> simp [completion, h]
 
 lemma refines_completion (c : Contract ω Outcome) (default : Outcome) :
     refines c (completion c default) := by
   intro s o h
-  -- si c.alloc s = some o, alors la complétion garde la même issue
+  -- if c.alloc s = some o, then completion keeps the same outcome
   simp [completion, h]
 
 end Contract
 
--- Version IRIS des résultats : variations (ΔV, ΔD) qui respectent
--- la contrainte thermodynamique de non-négativité.
+-- IRIS version of outcomes: variations (ΔV, ΔD) that respect
+-- the thermodynamic constraint of non-negativity.
 
-/-- Issue compatible avec IRIS : variations non négatives de V et D. -/
+/-- IRIS-compatible outcome: non-negative variations of V and D. -/
 structure IrisOutcome where
   ΔV : ℝ
   ΔD : ℝ
   h_nonneg : 0 ≤ ΔV ∧ 0 ≤ ΔD
 
-/-- Tout contrat complet à issues IRIS fournit, pour chaque état,
-    une issue effectivement non négative en (V,D). -/
+/-- Any complete contract with IRIS outcomes provides, for each state,
+    an outcome that is effectively non-negative in (V,D). -/
 theorem exists_outcome_for_state
     {ω : Type u} (c : Contract ω IrisOutcome)
     (h_complete : Contract.complete c) (s : ω) :
@@ -85,15 +85,15 @@ theorem exists_outcome_for_state
   have h_ne : c.alloc s ≠ none := h_complete s
   cases h : c.alloc s with
   | none =>
-      -- Contradiction avec la complétude du contrat
+      -- Contradiction with contract completeness
       have : False := h_ne (by simp [h])
       exact this.elim
   | some out =>
-      -- On récupère la non-négativité intégrée dans IrisOutcome
+      -- We retrieve the non-negativity built into IrisOutcome
       rcases out.h_nonneg with ⟨hΔV, hΔD⟩
-      -- But : ∃ out, c.alloc s = some out ∧ 0 ≤ out.ΔV ∧ 0 ≤ out.ΔD
+      -- Goal: ∃ out, c.alloc s = some out ∧ 0 ≤ out.ΔV ∧ 0 ≤ out.ΔD
       refine ⟨out, ?_⟩
-      -- On construit la conjonction imbriquée
+      -- We construct the nested conjunction
       simp [hΔV, hΔD]
 
 end IrisIncompleteContracts
