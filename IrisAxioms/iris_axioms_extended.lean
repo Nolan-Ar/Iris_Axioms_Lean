@@ -5,24 +5,24 @@ import Mathlib.Data.List.Basic
 namespace IrisAxiomsExtended
 
 /-!
-  IRIS — Axiomes Étendus (A1-A27)
+  IRIS — Extended Axioms (A1-A27)
 
-  Ce fichier étend les 12 axiomes originaux avec 15 nouveaux axiomes
-  identifiés lors de l'analyse du document IRIS complet.
+  This file extends the 12 original axioms with 15 new axioms
+  identified during analysis of the complete IRIS document.
 
-  Organisation :
-  - Section 1 : Types de base et structures fondamentales
-  - Section 2 : Axiomes originaux (A1-A12)
-  - Section 3 : Nouveaux axiomes - Oracle et Initialisation (A13-A14)
-  - Section 4 : Nouveaux axiomes - Conversion et Circulation (A15-A16)
-  - Section 5 : Nouveaux axiomes - Stacking (A17-A18)
-  - Section 6 : Nouveaux axiomes - Régulation Thermométrique (A19-A20)
-  - Section 7 : Nouveaux axiomes - Compte Entreprise et TAP (A21-A22)
-  - Section 8 : Nouveaux axiomes - Sécurité et Gouvernance (A23-A25)
-  - Section 9 : Nouveaux axiomes - NFT et Patrimoine (A26-A27)
+  Organization:
+  - Section 1: Basic types and fundamental structures
+  - Section 2: Original axioms (A1-A12)
+  - Section 3: New axioms - Oracle and Initialization (A13-A14)
+  - Section 4: New axioms - Conversion and Circulation (A15-A16)
+  - Section 5: New axioms - Stacking (A17-A18)
+  - Section 6: New axioms - Thermometric Regulation (A19-A20)
+  - Section 7: New axioms - Enterprise Account and TAP (A21-A22)
+  - Section 8: New axioms - Security and Governance (A23-A25)
+  - Section 9: New axioms - NFT and Patrimony (A26-A27)
 -/
 
-/-! # Section 1 : Types de base et structures fondamentales -/
+/-! # Section 1: Basic types and fundamental structures -/
 
 structure TU where
   val : String
@@ -36,13 +36,13 @@ structure Hash where
   val : String
   deriving Repr
 
-/-! ## Grandeurs économiques & comptes (structures originales) -/
+/-! ## Economic quantities & accounts (original structures) -/
 
 structure Valeurs where
-  S : ℝ  -- Stipulat (preuve d'effort)
-  U : ℝ  -- Unum (monnaie d'usage)
-  V : ℝ  -- Verum (valeur vivante)
-  D : ℝ  -- Passif thermométrique
+  S : ℝ  -- Stipulat (proof of effort)
+  U : ℝ  -- Unum (usage currency)
+  V : ℝ  -- Verum (living value)
+  D : ℝ  -- Thermometric liability
   hS : 0 ≤ S
   hU : 0 ≤ U
   hV : 0 ≤ V
@@ -77,9 +77,9 @@ structure Transaction where
   timestamp : ℕ
   h_montant : 0 < montant
 
-/-! ## Nouvelles structures (enrichissement) -/
+/-! ## New structures (enrichment) -/
 
-/-! ### Oracle et Initialisation -/
+/-! ### Oracle and Initialization -/
 
 inductive OracleMode where
   | Officiel : OracleMode
@@ -98,7 +98,7 @@ structure Oracle where
   biens_enregistres : List ActifReel
   h_facteur : 0 ≤ facteur_auth ∧ facteur_auth ≤ 1
 
-/-! ### Stacking et Contrats -/
+/-! ### Stacking and Contracts -/
 
 structure Stacking where
   montant_initial : ℝ
@@ -114,13 +114,13 @@ structure ConversionVU where
   h_conversion : U_obtenu = kappa * V_source
   h_V : 0 ≤ V_source
 
-/-! ### Régulateur Automatique Décentralisé (RAD) -/
+/-! ### Decentralized Automatic Regulator (RAD) -/
 
 structure RAD where
   D_total : ℝ
   V_on_total : ℝ
-  eta : ℝ       -- Multiplicateur de création
-  kappa : ℝ     -- Coefficient de conversion
+  eta : ℝ       -- Creation multiplier
+  kappa : ℝ     -- Conversion coefficient
   h_D : 0 ≤ D_total
   h_V : 0 < V_on_total
   h_eta : 0.5 ≤ eta ∧ eta ≤ 2.0
@@ -129,7 +129,7 @@ structure RAD where
 noncomputable def thermometre (rad : RAD) : ℝ :=
   rad.D_total / rad.V_on_total
 
-/-! ### Titres à Promesse Productive (TAP) -/
+/-! ### Productive Promise Titles (TAP) -/
 
 structure TAP where
   montant_avance : ℝ
@@ -144,7 +144,7 @@ structure CompteEntrepriseEtendu extends CompteEntreprise where
   coefficient_confiance : ℝ
   h_confiance : 0 ≤ coefficient_confiance ∧ coefficient_confiance ≤ 2.0
 
-/-! ### Wallet Enrichi -/
+/-! ### Extended Wallet -/
 
 structure WalletEtendu where
   proprietaire : CompteUtilisateur
@@ -155,15 +155,15 @@ structure WalletEtendu where
   h_U : 0 ≤ U_actuel
   h_V : 0 ≤ V_liquide
 
-/-! ### État Système Global -/
+/-! ### Global System State -/
 
 structure SystemState where
   utilisateurs : List CompteUtilisateur
   entreprises : List CompteEntreprise
   V_total : ℝ
   D_total : ℝ
-  V_on : ℝ        -- Valeur circulante
-  V_immo : ℝ      -- Valeur immobilisée
+  V_on : ℝ        -- Circulating value
+  V_immo : ℝ      -- Immobilized value
   cycle_actuel : ℕ
   h_conservation : V_total = V_on + V_immo
   h_V : 0 ≤ V_total
@@ -171,22 +171,22 @@ structure SystemState where
   h_V_on : 0 ≤ V_on
   h_V_immo : 0 ≤ V_immo
 
-/-! ## Prédicat de signature (inchangé) -/
+/-! ## Signature predicate (unchanged) -/
 
 def ValidSig (_cu : CompteUtilisateur) (_tx : Transaction) : Prop := True
--- ↑ schéma par défaut ; à raffiner avec cryptographie réelle
+-- ↑ default schema; to be refined with real cryptography
 
-/-! # Section 2 : AXIOMES ORIGINAUX (A1-A12) -/
+/-! # Section 2: ORIGINAL AXIOMS (A1-A12) -/
 
-/-! ## Axiome 2.1 : Unicité bijective (CU ↔ (TU,VC)) -/
+/-! ## Axiom 2.1: Bijective uniqueness (CU ↔ (TU,VC)) -/
 axiom A1_unicite_bijective :
   ∃ (f : CompteUtilisateur → TU × VC),
     Function.Bijective f ∧
     ∀ cu, (f cu).1 = cu.tu ∧ (f cu).2 = cu.vc
 
-/-! ## Axiome 2.2 : RU sans émission par la dette
-  Source : Ch. 2.2.2 du document IRIS
-  Garantit que le revenu universel ne provient pas d'un endettement
+/-! ## Axiom 2.2: UBI without debt emission
+  Source: Ch. 2.2.2 of IRIS document
+  Guarantees that universal basic income does not originate from debt
 -/
 axiom A2_absence_emission_dette (U_t V_on ρ : ℝ) (T N : ℕ) :
   (0 ≤ ρ ∧ ρ ≤ 0.3) →
@@ -194,30 +194,30 @@ axiom A2_absence_emission_dette (U_t V_on ρ : ℝ) (T N : ℕ) :
   0 ≤ V_on →
   U_t = (1 - ρ) * V_on / ((T : ℝ) * (N : ℝ)) ∧ 0 ≤ U_t
 
-/-! ## Axiome 2.3 : Inviolabilité des transactions (signature vérifiée)
-  Source : Ch. 2.1.2
-  Garantit qu'aucune transaction ne peut se faire sans validation cryptographique
+/-! ## Axiom 2.3: Inviolability of transactions (verified signature)
+  Source: Ch. 2.1.2
+  Guarantees that no transaction can occur without cryptographic validation
 -/
 axiom A3_inviolabilite_transactions :
   ∀ (cu : CompteUtilisateur) (tx : Transaction), ValidSig cu tx
 
-/-! ## Axiome 2.4 : Exclusion stricte de U pour les comptes entreprise
-  Source : Ch. 2.3.1
-  Les entreprises ne manipulent que de la valeur V, jamais de monnaie d'usage U
+/-! ## Axiom 2.4: Strict exclusion of U for enterprise accounts
+  Source: Ch. 2.3.1
+  Enterprises only handle value V, never usage currency U
 -/
 axiom A4_exclusion_U_entreprise (ce : CompteEntreprise) :
   0 ≤ ce.tresorerie_V
 
-/-! ## Axiome 2.5 : Stipulat nécessaire pour tout NFT de valeur
-  Source : Ch. 2.1.3
-  Tout NFT de valeur non nulle doit avoir un Stipulat (preuve d'effort)
+/-! ## Axiom 2.5: Stipulat necessary for all valued NFTs
+  Source: Ch. 2.1.3
+  Any NFT with non-zero value must have a Stipulat (proof of effort)
 -/
 axiom A5_necessite_stipulat (nft : NFT) :
   0 < nft.valeur → 0 < nft.stipulat
 
-/-! ## Axiome 2.6 : Création de valeur énergétique (η = η_phys * μ_social)
-  Source : Ch. 2.1.3
-  Loi thermodynamique de création de valeur par combustion U + S
+/-! ## Axiom 2.6: Energetic value creation (η = η_phys * μ_social)
+  Source: Ch. 2.1.3
+  Thermodynamic law of value creation by burning U + S
 -/
 axiom A6_creation_valeur_energetique
   (η_phys μ_social Δt w_S w_U S_burn U_burn : ℝ) :
@@ -231,45 +231,45 @@ axiom A6_creation_valeur_energetique
   let ΔV := η * Δt * Et
   0 ≤ ΔV
 
-/-! ## Axiome 2.7 : Absence d'intérêts (remboursements = principal)
-  Source : Ch. 2.2.4
-  Aucun prêt ne génère d'intérêts dans IRIS
+/-! ## Axiom 2.7: Absence of interest (repayments = principal)
+  Source: Ch. 2.2.4
+  No loan generates interest in IRIS
 -/
 axiom A7_absence_interets (montant_initial : ℝ) (remboursements : List ℝ) :
   remboursements.sum = montant_initial
 
-/-! ## Axiome 2.8 : Mémoire généalogique obligatoire
-  Source : Ch. 1.4
-  Tout NFT doit avoir une généalogie traçable
+/-! ## Axiom 2.8: Mandatory genealogical memory
+  Source: Ch. 1.4
+  Every NFT must have traceable genealogy
 -/
 axiom A8_genealogie_complete (nft : NFT) :
   nft.genealogie ≠ [] ∨ nft.valeur = 0
 
-/-! ## Axiome 2.9 : Médiation CE avec création de valeur
-  Source : Ch. 2.3
-  Toute création de valeur passe par un Compte Entreprise
+/-! ## Axiom 2.9: CE mediation with value creation
+  Source: Ch. 2.3
+  All value creation goes through an Enterprise Account
 -/
 axiom A9_mediation_CE_obligatoire (nft_source nft_dest : NFT) (V_creation : ℝ) :
   0 < V_creation →
   ∃ ce : CompteEntreprise, ce.tresorerie_V ≥ V_creation
 
-/-! ## Axiome 2.10 : Conservation thermodynamique (grandeurs fondamentales ≥ 0)
-  Source : Ch. 2.1.5
-  Les grandeurs V et D restent toujours non-négatives
+/-! ## Axiom 2.10: Thermodynamic conservation (fundamental quantities ≥ 0)
+  Source: Ch. 2.1.5
+  Quantities V and D always remain non-negative
 -/
 axiom A10_conservation_thermodynamique (V_total D_total : ℝ) :
   0 ≤ V_total ∧ 0 ≤ D_total
 
-/-! ## Axiome 2.11 : Continuité organisationnelle
-  Source : Document IRIS
-  Toute entreprise peut se transmettre à un successeur
+/-! ## Axiom 2.11: Organizational continuity
+  Source: IRIS Document
+  Any enterprise can be transferred to a successor
 -/
 axiom A11_survie_organisationnelle (ce : CompteEntreprise) :
   ∃ _successeur : CompteUtilisateur, True
 
-/-! ## Axiome 2.12 : Distribution effective du RU
-  Source : Ch. 2.2.2
-  Le revenu universel est effectivement distribué intégralement
+/-! ## Axiom 2.12: Effective UBI distribution
+  Source: Ch. 2.2.2
+  Universal basic income is effectively distributed in full
 -/
 axiom A12_distribution_RU
   (U_t : ℝ) (beneficiaires : List CompteUtilisateur)
@@ -277,45 +277,45 @@ axiom A12_distribution_RU
   (∀ cu ∈ beneficiaires, 0 ≤ alloc cu) →
   (beneficiaires.attach.map (fun ⟨cu,_⟩ => alloc cu)).sum = U_t
 
-/-! # Section 3 : NOUVEAUX AXIOMES - Oracle et Initialisation (A13-A14) -/
+/-! # Section 3: NEW AXIOMS - Oracle and Initialization (A13-A14) -/
 
-/-! ## Axiome 3.1 (A13) : Neutralité énergétique de l'initialisation
-  Source : Ch. 1.1.2 - "Double inscription initiale"
+/-! ## Axiom 3.1 (A13): Energy neutrality of initialization
+  Source: Ch. 1.1.2 - "Double initial entry"
 
-  À l'initialisation du système, la somme des valeurs V₀ créditées
-  doit être exactement égale à la somme des passifs D₀ inscrits.
+  At system initialization, the sum of credited V₀ values
+  must exactly equal the sum of recorded D₀ liabilities.
 
-  Garantit : ∑V₀ = ∑D₀ au démarrage
+  Guarantees: ∑V₀ = ∑D₀ at startup
 -/
 axiom A13_neutralite_initiale (oracle : Oracle) :
   let V_total_init := (oracle.biens_enregistres.map (·.valeur_effective)).sum
-  let D_total_init := V_total_init  -- Miroir thermométrique
+  let D_total_init := V_total_init  -- Thermometric mirror
   V_total_init = D_total_init
 
-/-! ## Axiome 3.2 (A14) : Unicité cryptographique des biens
-  Source : Ch. 1.3.6 - "Empreinte d'unicité et détection des duplications"
+/-! ## Axiom 3.2 (A14): Cryptographic uniqueness of goods
+  Source: Ch. 1.3.6 - "Uniqueness fingerprint and duplication detection"
 
-  Deux biens ayant le même hash sont nécessairement le même bien.
-  Empêche la double déclaration d'un même actif réel.
+  Two goods with the same hash are necessarily the same good.
+  Prevents double declaration of the same real asset.
 
-  Garantit : Aucun bien ne peut exister en double dans le système
+  Guarantees: No good can exist twice in the system
 -/
 axiom A14_unicite_biens (bien1 bien2 : ActifReel) :
   bien1.hash_unicite = bien2.hash_unicite →
   bien1 = bien2
 
-/-! # Section 4 : NOUVEAUX AXIOMES - Conversion et Circulation (A15-A16) -/
+/-! # Section 4: NEW AXIOMS - Conversion and Circulation (A15-A16) -/
 
-/-! ## Axiome 4.1 (A15) : Conversion V ↔ U régulée par κ
-  Source : Ch. 2.2.3 - "Conversion de (V) vers (U)"
+/-! ## Axiom 4.1 (A15): V ↔ U conversion regulated by κ
+  Source: Ch. 2.2.3 - "Conversion from (V) to (U)"
 
-  La conversion de valeur vivante V en monnaie d'usage U est régulée
-  par le coefficient dynamique κ (kappa) qui varie selon l'état du système.
+  Conversion of living value V to usage currency U is regulated
+  by the dynamic coefficient κ (kappa) which varies with system state.
 
-  κ ∈ [0.5, 2.0] :
-  - κ > 1 : facilite la liquidité (période de léthargie)
-  - κ = 1 : conversion neutre
-  - κ < 1 : restreint la liquidité (période de surchauffe)
+  κ ∈ [0.5, 2.0]:
+  - κ > 1: facilitates liquidity (lethargy period)
+  - κ = 1: neutral conversion
+  - κ < 1: restricts liquidity (overheating period)
 -/
 axiom A15_conversion_regulee (V_converti kappa : ℝ) :
   (0 ≤ V_converti) →
@@ -323,98 +323,98 @@ axiom A15_conversion_regulee (V_converti kappa : ℝ) :
   let U_obtenu := kappa * V_converti
   0 ≤ U_obtenu
 
-/-! ## Axiome 4.2 (A16) : Extinction périodique de U
-  Source : Ch. 2.2.2 - "Extinction périodique"
+/-! ## Axiom 4.2 (A16): Periodic extinction of U
+  Source: Ch. 2.2.2 - "Periodic extinction"
 
-  Les unités de monnaie d'usage U non dépensées à la fin d'un cycle
-  sont automatiquement détruites. Cette extinction force la circulation
-  et empêche l'accumulation improductive.
+  Usage currency U units not spent by end of cycle
+  are automatically destroyed. This extinction forces circulation
+  and prevents unproductive accumulation.
 
-  Garantit : U est strictement périssable
+  Guarantees: U is strictly perishable
 -/
 axiom A16_extinction_U (wallet : WalletEtendu) (cycle : ℕ) :
   let U_non_depense := wallet.U_actuel
-  -- En fin de cycle, U non dépensé est détruit
+  -- At end of cycle, unspent U is destroyed
   U_non_depense ≥ 0
 
-/-! # Section 5 : NOUVEAUX AXIOMES - Stacking (A17-A18) -/
+/-! # Section 5: NEW AXIOMS - Stacking (A17-A18) -/
 
-/-! ## Axiome 5.1 (A17) : Neutralité énergétique du stacking
-  Source : Ch. 2.2.4 - "Mécanisme d'avance"
+/-! ## Axiom 5.1 (A17): Energy neutrality of stacking
+  Source: Ch. 2.2.4 - "Advance mechanism"
 
-  Lorsqu'un contrat de stacking (crédit sans intérêt) est créé,
-  la valeur V avancée est exactement égale au passif D_stack inscrit.
+  When a stacking contract (interest-free credit) is created,
+  the advanced value V exactly equals the recorded D_stack liability.
 
-  Formule : ΔV_avance = ΔD_stack
+  Formula: ΔV_avance = ΔD_stack
 
-  Garantit : Le stacking ne crée pas de monnaie à partir de rien
+  Guarantees: Stacking doesn't create money from nothing
 -/
 axiom A17_stacking_neutre (stack : Stacking) (D_stack : ℝ) :
   let V_avance := stack.montant_initial
   V_avance = D_stack
 
-/-! ## Axiome 5.2 (A18) : Transférabilité de l'engagement
-  Source : Ch. 2.2.4 - "Transférabilité de l'engagement"
+/-! ## Axiom 5.2 (A18): Transferability of commitment
+  Source: Ch. 2.2.4 - "Transferability of commitment"
 
-  Le contrat de stacking est cryptographiquement lié au NFT financé.
-  En cas de transfert du NFT, l'engagement de remboursement se transfère
-  automatiquement au nouveau détenteur.
+  The stacking contract is cryptographically linked to the financed NFT.
+  In case of NFT transfer, the repayment commitment automatically
+  transfers to the new holder.
 
-  Garantit : Élimination du risque de défaut par suivi de l'actif
+  Guarantees: Elimination of default risk by asset tracking
 -/
 axiom A18_transfert_engagement
   (nft : NFT) (stack : Stacking)
   (ancien_proprio nouveau_proprio : CompteUtilisateur) :
   nft.hash = stack.nft_lie_hash →
-  -- Transfert NFT implique transfert engagement
-  True  -- Représentation simplifiée (garder pour compatibilité)
+  -- NFT transfer implies commitment transfer
+  True  -- Simplified representation (keep for compatibility)
 
-/-! # Section 6 : NOUVEAUX AXIOMES - Régulation Thermométrique (A19-A20) -/
+/-! # Section 6: NEW AXIOMS - Thermometric Regulation (A19-A20) -/
 
-/-! ## Axiome 6.1 (A19) : Thermomètre global borné en équilibre
-  Source : Ch. 2.1.5 - "Régulation thermométrique"
+/-! ## Axiom 6.1 (A19): Global thermometer bounded in equilibrium
+  Source: Ch. 2.1.5 - "Thermometric regulation"
 
-  Le thermomètre r_t = D_t / V_on_t mesure la "température" économique.
-  En état d'équilibre stable, r_t doit rester dans la zone saine.
+  The thermometer r_t = D_t / V_on_t measures economic "temperature".
+  In stable equilibrium state, r_t must remain in the healthy zone.
 
-  Zones :
-  - r_t < 0.85 : système froid (sous-investissement)
-  - 0.85 ≤ r_t ≤ 1.15 : équilibre sain
-  - r_t > 1.15 : système surchauffé
+  Zones:
+  - r_t < 0.85: cold system (under-investment)
+  - 0.85 ≤ r_t ≤ 1.15: healthy equilibrium
+  - r_t > 1.15: overheated system
 -/
 axiom A19_thermometre_borne (rad : RAD) :
   let r_t := thermometre rad
-  -- En état stable, le thermomètre tend vers [0.85, 1.15]
+  -- In stable state, thermometer tends toward [0.85, 1.15]
   0.85 ≤ r_t ∧ r_t ≤ 1.15 → True
 
-/-! ## Axiome 6.2 (A20) : Ajustement automatique de η
-  Source : Ch. 2.3.4 - "Mécanisme d'autorégulation"
+/-! ## Axiom 6.2 (A20): Automatic adjustment of η
+  Source: Ch. 2.3.4 - "Self-regulation mechanism"
 
-  Le multiplicateur de création de valeur η s'ajuste automatiquement
-  en fonction du thermomètre r_t pour maintenir l'homéostasie.
+  The value creation multiplier η automatically adjusts
+  based on thermometer r_t to maintain homeostasis.
 
-  Règles :
-  - Si r_t > 1.15 (surchauffe) → η diminue (ralentit la création)
-  - Si r_t < 0.85 (léthargie) → η augmente (stimule la création)
+  Rules:
+  - If r_t > 1.15 (overheating) → η decreases (slows creation)
+  - If r_t < 0.85 (lethargy) → η increases (stimulates creation)
 
-  Garantit : Régulation contracyclique automatique
+  Guarantees: Automatic countercyclical regulation
 -/
 axiom A20_ajustement_eta (r_t η_avant η_apres : ℝ) :
   (r_t > 1.15 → η_apres < η_avant) ∧
   (r_t < 0.85 → η_apres > η_avant) ∧
   (0.5 ≤ η_apres ∧ η_apres ≤ 2.0)
 
-/-! # Section 7 : NOUVEAUX AXIOMES - Compte Entreprise et TAP (A21-A22) -/
+/-! # Section 7: NEW AXIOMS - Enterprise Account and TAP (A21-A22) -/
 
-/-! ## Axiome 7.1 (A21) : Capacité TAP limitée par réserve
-  Source : Ch. 2.3.5 - "Capacité maximale d'émission"
+/-! ## Axiom 7.1 (A21): TAP capacity limited by reserve
+  Source: Ch. 2.3.5 - "Maximum emission capacity"
 
-  Un Compte Entreprise ne peut émettre de Titres à Promesse Productive (TAP)
-  que dans la limite de 80% de ses réserves (trésorerie + NFT financiers).
+  An Enterprise Account can only issue Productive Promise Titles (TAP)
+  up to 80% of its reserves (treasury + financial NFTs).
 
-  Formule : C_TAP ≤ 0.8 × (V_tresorerie + V_financier)
+  Formula: C_TAP ≤ 0.8 × (V_tresorerie + V_financier)
 
-  Garantit : Aucune entreprise ne peut s'endetter au-delà de ses actifs
+  Guarantees: No enterprise can borrow beyond its assets
 -/
 axiom A21_capacite_TAP (ce : CompteEntrepriseEtendu) :
   let V_tresorerie := ce.tresorerie_V
@@ -422,14 +422,14 @@ axiom A21_capacite_TAP (ce : CompteEntrepriseEtendu) :
   let TAP_total := (ce.TAP_en_cours.map (·.montant_avance)).sum
   TAP_total ≤ 0.8 * (V_tresorerie + V_financier)
 
-/-! ## Axiome 7.2 (A22) : Distribution organique 40/60
-  Source : Ch. 2.3.4 - "Distribution organique"
+/-! ## Axiom 7.2 (A22): 40/60 organic distribution
+  Source: Ch. 2.3.4 - "Organic distribution"
 
-  Toute valeur créée par un Compte Entreprise est automatiquement répartie :
-  - 40% vers les collaborateurs (rémunération directe)
-  - 60% vers la trésorerie (réserve de fonctionnement)
+  Any value created by an Enterprise Account is automatically split:
+  - 40% to collaborators (direct compensation)
+  - 60% to treasury (operating reserve)
 
-  Garantit : Circulation automatique de la valeur, empêche l'accumulation
+  Guarantees: Automatic value circulation, prevents accumulation
 -/
 axiom A22_distribution_organique (ce : CompteEntrepriseEtendu) (ΔV : ℝ) :
   0 < ΔV →
@@ -437,80 +437,80 @@ axiom A22_distribution_organique (ce : CompteEntrepriseEtendu) (ΔV : ℝ) :
   let part_tresorerie := 0.6 * ΔV
   part_collaborateurs + part_tresorerie = ΔV
 
-/-! # Section 8 : NOUVEAUX AXIOMES - Sécurité et Gouvernance (A23-A25) -/
+/-! # Section 8: NEW AXIOMS - Security and Governance (A23-A25) -/
 
-/-! ## Axiome 8.1 (A23) : Résistance aux attaques Sybil
-  Source : Ch. 2.1.2 - "Unicité cryptographique"
+/-! ## Axiom 8.1 (A23): Resistance to Sybil attacks
+  Source: Ch. 2.1.2 - "Cryptographic uniqueness"
 
-  Chaque être humain vivant ne peut détenir qu'un seul et unique
-  Compte Utilisateur, garanti par le couple (TU, VC).
+  Each living human being can hold only one and unique
+  User Account, guaranteed by the pair (TU, VC).
 
-  Empêche :
-  - Création de comptes fantômes
-  - Duplication frauduleuse du revenu universel
-  - Accumulation spéculative par identités multiples
+  Prevents:
+  - Creation of ghost accounts
+  - Fraudulent duplication of universal basic income
+  - Speculative accumulation via multiple identities
 -/
 axiom A23_anti_sybil :
   ∀ (cu1 cu2 : CompteUtilisateur),
     (cu1.tu = cu2.tu ∧ cu1.vc = cu2.vc) →
     cu1 = cu2
 
-/-! ## Axiome 8.2 (A24) : Traçabilité sans surveillance
-  Source : Ch. 2.1.2 - "Traçabilité sans surveillance"
+/-! ## Axiom 8.2 (A24): Traceability without surveillance
+  Source: Ch. 2.1.2 - "Traceability without surveillance"
 
-  Chaque transaction laisse une empreinte cryptographique publique
-  (hash + horodatage) mais les montants et parties restent chiffrés.
+  Each transaction leaves a public cryptographic fingerprint
+  (hash + timestamp) but amounts and parties remain encrypted.
 
-  Permet :
-  - Auditabilité des flux globaux (∑V, ∑U, ∑D)
-  - Protection de la vie privée individuelle
+  Enables:
+  - Auditability of global flows (∑V, ∑U, ∑D)
+  - Protection of individual privacy
 -/
 axiom A24_tracabilite_privee (tx : Transaction) :
-  -- Empreinte publique existe
+  -- Public fingerprint exists
   tx.signature.val ≠ "" ∧
-  -- Mais montants/parties non révélés publiquement
-  True  -- Représentation simplifiée
+  -- But amounts/parties not publicly revealed
+  True  -- Simplified representation
 
-/-! ## Axiome 8.3 (A25) : Limites de rétention entreprise
-  Source : Ch. 2.3.4 - "Limite de rétention"
+/-! ## Axiom 8.3 (A25): Enterprise retention limits
+  Source: Ch. 2.3.4 - "Retention limit"
 
-  Aucune entreprise ne peut conserver en trésorerie plus de 120%
-  de sa moyenne mobile sur 3 cycles. Tout excédent est redistribué.
+  No enterprise can keep in treasury more than 120%
+  of its 3-cycle moving average. Any excess is redistributed.
 
-  Garantit : Empêche l'inertie et la thésaurisation
+  Guarantees: Prevents inertia and hoarding
 -/
 axiom A25_limite_retention
   (ce : CompteEntrepriseEtendu)
   (moyenne_3cycles : ℝ) :
   ce.tresorerie_V ≤ 1.2 * moyenne_3cycles
 
-/-! # Section 9 : NOUVEAUX AXIOMES - NFT et Patrimoine (A26-A27) -/
+/-! # Section 9: NEW AXIOMS - NFT and Patrimony (A26-A27) -/
 
-/-! ## Axiome 9.1 (A26) : Cycle de vie NFT productif
-  Source : Ch. 2.3.2 - "Cycle de vie d'un NFT productif"
+/-! ## Axiom 9.1 (A26): Productive NFT life cycle
+  Source: Ch. 2.3.2 - "Life cycle of a productive NFT"
 
-  Tout NFT productif suit un cycle immuable :
-  1. Émission (création + Stipulat S)
-  2. Validation (achat + EX)
-  3. Combustion (destruction U + S → création V)
-  4. Archivage (trace dans CNP)
+  Every productive NFT follows an immutable cycle:
+  1. Emission (creation + Stipulat S)
+  2. Validation (purchase + EX)
+  3. Combustion (destruction U + S → creation V)
+  4. Archiving (trace in CNP)
 
-  Garantit : Traçabilité complète de chaque acte productif
+  Guarantees: Complete traceability of every productive act
 -/
 axiom A26_cycle_nft_productif (nft : NFT) :
-  -- Tout NFT productif a un Stipulat
+  -- Every productive NFT has a Stipulat
   (nft.valeur > 0 → nft.stipulat > 0) ∧
-  -- Et une généalogie traçable
+  -- And traceable genealogy
   (nft.valeur > 0 → nft.genealogie ≠ [])
 
-/-! ## Axiome 9.2 (A27) : Conservation patrimoniale V_total = V_on + V_immo
-  Source : Ch. 2.3.6 - "Loi de conservation patrimoniale"
+/-! ## Axiom 9.2 (A27): Patrimonial conservation V_total = V_on + V_immo
+  Source: Ch. 2.3.6 - "Law of patrimonial conservation"
 
-  La valeur totale du système est toujours la somme de :
-  - V_on : valeur circulante (active, liquide)
-  - V_immo : valeur immobilisée (NFT financiers)
+  The system's total value is always the sum of:
+  - V_on: circulating value (active, liquid)
+  - V_immo: immobilized value (financial NFTs)
 
-  Garantit : Aucune création de richesse spéculative
+  Guarantees: No speculative wealth creation
 -/
 axiom A27_conservation_patrimoine (sys : SystemState) :
   sys.V_total = sys.V_on + sys.V_immo
@@ -532,7 +532,7 @@ end IrisAxiomsExtended
 #check IrisAxiomsExtended.A11_survie_organisationnelle
 #check IrisAxiomsExtended.A12_distribution_RU
 
--- Nouveaux axiomes
+-- New axioms
 #check IrisAxiomsExtended.A13_neutralite_initiale
 #check IrisAxiomsExtended.A14_unicite_biens
 #check IrisAxiomsExtended.A15_conversion_regulee

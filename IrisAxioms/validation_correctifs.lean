@@ -3,20 +3,20 @@ import Mathlib.Tactic
 import Mathlib.Data.List.Basic
 import IrisAxioms.iris_axioms
 
--- On importe tout depuis iris_axioms au lieu de redéfinir
+-- Import everything from iris_axioms instead of redefining
 open IrisAxioms
 
 /-
-  IRIS — Validation des Correctifs
-  Vérification que les 3 ajustements résolvent tous les problèmes
+  IRIS — Validation of Corrections
+  Verification that the 3 adjustments resolve all problems
 -/
 
 
 /-!
-# TEST 1 : η décomposé résout le problème
+# TEST 1: Decomposed η solves the problem
 -/
 
--- Maintenant η ≤ 2 est justifié : η_phys ≤ 1 et μ_social ≤ 2
+-- Now η ≤ 2 is justified: η_phys ≤ 1 and μ_social ≤ 2
 theorem test_eta_decompose :
   ∀ (η_phys μ_social : ℝ),
     (0 < η_phys ∧ η_phys ≤ 1) →
@@ -34,7 +34,7 @@ theorem test_eta_decompose :
     have : μ_social ≤ 2 := h_social.2
     nlinarith
 
--- Test : efficacité physique pure (μ=1) donne η ≤ 1
+-- Test: Pure physical efficiency (μ=1) gives η ≤ 1
 theorem test_eta_physique_pur :
   ∀ (η_phys : ℝ),
     (0 < η_phys ∧ η_phys ≤ 1) →
@@ -46,7 +46,7 @@ theorem test_eta_physique_pur :
   simp [η, μ_social]
   linarith
 
--- Test : externalités maximales (μ=2) donnent η ≤ 2
+-- Test: Maximum externalities (μ=2) give η ≤ 2
 theorem test_eta_externalites_max :
   ∀ (η_phys : ℝ),
     (0 < η_phys ∧ η_phys ≤ 1) →
@@ -58,7 +58,7 @@ theorem test_eta_externalites_max :
   simp [η, μ_social]
   linarith
 
--- Test : η = 1.5 est possible et justifié
+-- Test: η = 1.5 is possible and justified
 example :
   let η_phys := (0.75 : ℝ)
   let μ_social := (2.0 : ℝ)
@@ -70,14 +70,14 @@ example :
   norm_num
 
 /-!
-# TEST 2 : D ≥ 0 résout le problème de borne
+# TEST 2: D ≥ 0 solves the bound problem
 -/
 
--- Maintenant Valeurs garantit D ≥ 0
+-- Now Valeurs guarantees D ≥ 0
 theorem test_dette_positive (v : Valeurs) :
   0 ≤ v.D := v.hD
 
--- Conservation thermodynamique maintenant cohérente avec D ≥ 0
+-- Thermodynamic conservation now consistent with D ≥ 0
 theorem test_conservation_coherente :
   ∀ (v : Valeurs),
     let V_total := v.V
@@ -86,7 +86,7 @@ theorem test_conservation_coherente :
   intro v V_total D_total
   exact ⟨v.hV, v.hD⟩
 
--- Test : impossibilité de dette négative
+-- Test: Impossibility of negative debt
 example :
   ¬∃ (v : Valeurs), v.D < 0 := by
   push_neg
@@ -94,10 +94,10 @@ example :
   linarith [v.hD]
 
 /-!
-# TEST 3 : Distribution RU garantie
+# TEST 3: Guaranteed RU Distribution
 -/
 
--- La somme des allocations égale U_t
+-- The sum of allocations equals U_t
 theorem test_distribution_effective
   (_U_t : ℝ)
   (beneficiaires : List CompteUtilisateur)
@@ -106,7 +106,7 @@ theorem test_distribution_effective
   (beneficiaires.attach.map (fun ⟨cu,_⟩ => alloc cu)).sum = _U_t :=
   A12_distribution_RU _U_t beneficiaires alloc h_pos
 
--- Chaque bénéficiaire reçoit une allocation positive
+-- Each beneficiary receives a positive allocation
 theorem test_allocation_positive
   (_U_t : ℝ)
   (beneficiaires : List CompteUtilisateur)
@@ -117,7 +117,7 @@ theorem test_allocation_positive
   0 ≤ alloc cu :=
   h_pos cu h_mem
 
--- Test numérique : distribution à 3 personnes
+-- Numerical test: Distribution to 3 people
 example :
   let _U_t := (300 : ℝ)
   let cu1 : CompteUtilisateur := {
@@ -151,19 +151,19 @@ example :
     h_cnp := by norm_num
   }
   let _beneficiaires := [cu1, cu2, cu3]
-  let _alloc : CompteUtilisateur → ℝ := fun _ => 100  -- 100 chacun
+  let _alloc : CompteUtilisateur → ℝ := fun _ => 100  -- 100 each
   (100 : ℝ) + 100 + 100 = 300 := by norm_num
 
 /-!
-# TEST 4 : Cohérence globale améliorée
+# TEST 4: Improved global consistency
 -/
 
--- Toutes les grandeurs fondamentales sont positives
+-- All fundamental quantities are positive
 theorem test_toutes_grandeurs_positives (v : Valeurs) :
   0 ≤ v.S ∧ 0 ≤ v.U ∧ 0 ≤ v.V ∧ 0 ≤ v.D :=
   ⟨v.hS, v.hU, v.hV, v.hD⟩
 
--- Création de valeur avec décomposition η
+-- Value creation with η decomposition
 theorem test_creation_avec_decomposition
   (η_phys μ_social Δt S_burn U_burn : ℝ)
   (h_phys : 0 < η_phys ∧ η_phys ≤ 1)
@@ -183,7 +183,7 @@ theorem test_creation_avec_decomposition
     h_phys h_social ⟨h_ws_wu, h_nonneg⟩ h_burn h_dt
   exact this
 
--- Conservation avec D ≥ 0 garantie
+-- Conservation with D ≥ 0 guaranteed
 theorem test_conservation_sans_violation
   (V_avant V_apres ΔV_crea V_burn D_avant : ℝ)
   (_h_V_avant : 0 ≤ V_avant)
@@ -198,10 +198,10 @@ theorem test_conservation_sans_violation
   · exact h_D
 
 /-!
-# TEST 5 : Exemples numériques mis à jour
+# TEST 5: Updated numerical examples
 -/
 
--- Exemple 1 : η = 0.8 (physique pur, μ = 1)
+-- Example 1: η = 0.8 (pure physical, μ = 1)
 example :
   let η_phys := (0.8 : ℝ)
   let μ_social := (1.0 : ℝ)
@@ -217,7 +217,7 @@ example :
   intro η_phys μ_social η Δt S_burn U_burn w_S w_U Et ΔV
   norm_num
 
--- Exemple 2 : η = 1.6 (avec externalités, μ = 2)
+-- Example 2: η = 1.6 (with externalities, μ = 2)
 example :
   let η_phys := (0.8 : ℝ)
   let μ_social := (2.0 : ℝ)
@@ -233,34 +233,34 @@ example :
   intro η_phys μ_social η Δt S_burn U_burn w_S w_U Et ΔV
   norm_num
 
--- Exemple 3 : Valeurs avec D positif
+-- Example 3: Valeurs with positive D
 example :
   let v : Valeurs := {
     S := 100,
     U := 200,
     V := 1000,
-    D := 950,  -- Dette positive
+    D := 950,  -- Positive debt
     hS := by norm_num,
     hU := by norm_num,
     hV := by norm_num,
-    hD := by norm_num  -- Preuve que D ≥ 0
+    hD := by norm_num  -- Proof that D ≥ 0
   }
   v.D = 950 ∧ 0 ≤ v.D := by
   intro v
   norm_num [v.hD]
 
 /-!
-# RAPPORT DE VALIDATION FINALE
+# FINAL VALIDATION REPORT
 -/
 
--- Métathéorème : tous les correctifs sont effectifs
+-- Metatheorem: All corrections are effective
 theorem validation_complete :
-  -- Correctif 1 : η décomposé
+  -- Correction 1: Decomposed η
   (∀ (η_phys μ_social : ℝ), (0 < η_phys ∧ η_phys ≤ 1) → (1 ≤ μ_social ∧ μ_social ≤ 2) →
     let η := η_phys * μ_social; η ≤ 2) ∧
-  -- Correctif 2 : D ≥ 0
+  -- Correction 2: D ≥ 0
   (∀ v : Valeurs, 0 ≤ v.D) ∧
-  -- Correctif 3 : Distribution RU
+  -- Correction 3: RU Distribution
   (∀ (U_t : ℝ) (beneficiaires : List CompteUtilisateur) (alloc : CompteUtilisateur → ℝ),
     (∀ cu, cu ∈ beneficiaires → 0 ≤ alloc cu) →  -- CORRIGÉ
     (beneficiaires.attach.map (fun ⟨cu,_⟩ => alloc cu)).sum = U_t) := by
@@ -274,7 +274,7 @@ theorem validation_complete :
 
 #check validation_complete
 
--- Vérifications finales
+-- Final verifications
 #check test_eta_decompose
 #check test_dette_positive
 #check test_distribution_effective

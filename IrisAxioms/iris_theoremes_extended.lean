@@ -10,34 +10,34 @@ namespace IrisTheoremesExtended
 set_option linter.unusedVariables false
 
 /-
-  IRIS — Théorèmes Étendus
+  IRIS — Extended Theorems
 
-  Ce fichier contient les théorèmes originaux et 15+ nouveaux théorèmes
-  dérivés des axiomes étendus A1-A27.
+  This file contains the original theorems and 15+ new theorems
+  derived from the extended axioms A1-A27.
 
-  Organisation :
-  - Section 1 : Théorèmes originaux (contrat clos, etc.)
-  - Section 2 : Théorèmes de Conservation (T1-T2)
-  - Section 3 : Théorèmes de Stabilité (T3-T4)
-  - Section 4 : Théorèmes d'Équité (T5-T6)
-  - Section 5 : Théorèmes de Sécurité (T7-T8)
-  - Section 6 : Théorèmes de Résilience (T9-T10)
-  - Section 7 : Théorèmes de Circulation (T11-T13)
-  - Section 8 : Théorèmes Thermodynamiques (T14-T16)
+  Organization:
+  - Section 1: Original theorems (closed contract, etc.)
+  - Section 2: Conservation Theorems (T1-T2)
+  - Section 3: Stability Theorems (T3-T4)
+  - Section 4: Equity Theorems (T5-T6)
+  - Section 5: Security Theorems (T7-T8)
+  - Section 6: Resilience Theorems (T9-T10)
+  - Section 7: Circulation Theorems (T11-T13)
+  - Section 8: Thermodynamic Theorems (T14-T16)
 -/
 
-/-! # Section 1 : THÉORÈMES ORIGINAUX (RAPPEL)
+/-! # Section 1: ORIGINAL THEOREMS (REMINDER)
 
-  On redéfinit ici quelques théorèmes de base, en les plaçant
-  dans le namespace étendu pour pouvoir les réutiliser.
+  We redefine here some basic theorems, placing them
+  in the extended namespace to be able to reuse them.
 -/
 
-/-! ## Contrat clos (version étendue)
+/-! ## Closed contract (extended version)
 
-  Ce théorème regroupe :
-  - inviolabilité des transactions (A3)
-  - distribution complète du RU (A12)
-  - positivité de V et D (A10)
+  This theorem groups:
+  - inviolability of transactions (A3)
+  - complete distribution of UBI (A12)
+  - positivity of V and D (A10)
 -/
 theorem contrat_clos :
     (∀ (cu : CompteUtilisateur) (tx : Transaction), ValidSig cu tx) ∧
@@ -46,24 +46,24 @@ theorem contrat_clos :
           (beneficiaires.attach.map (fun ⟨cu, _⟩ => alloc cu)).sum = U_t) ∧
       (∀ (v : Valeurs), 0 ≤ v.V ∧ 0 ≤ v.D) := by
   constructor
-  · -- Inviolabilité des transactions
+  · -- Inviolability of transactions
     intro cu tx
     exact A3_inviolabilite_transactions cu tx
   constructor
-  · -- Distribution complète du RU
+  · -- Complete distribution of UBI
     intro U_t beneficiaires alloc h_pos
     exact A12_distribution_RU U_t beneficiaires alloc h_pos
-  · -- Positivité de V et D
+  · -- Positivity of V and D
     intro v
     have h := A10_conservation_thermodynamique v.V v.D
     exact h
 
-/-! # Section 2 : THÉORÈMES DE CONSERVATION (T1-T2) -/
+/-! # Section 2: CONSERVATION THEOREMS (T1-T2) -/
 
-/-! ## T1 : Conservation globale à l'initialisation
+/-! ## T1: Global conservation at initialization
 
-  À l'initialisation, la somme des valeurs réelles enregistrées
-  par l'oracle est égale à la dette totale correspondante.
+  At initialization, the sum of actual values recorded
+  by the oracle is equal to the corresponding total debt.
 -/
 theorem T1_conservation_globale_init (oracle : Oracle) :
     let V_init := (oracle.biens_enregistres.map (·.valeur_effective)).sum
@@ -71,17 +71,17 @@ theorem T1_conservation_globale_init (oracle : Oracle) :
     V_init = D_init := by
   exact A13_neutralite_initiale oracle
 
-/-! ## T1bis : Conservation du patrimoine
+/-! ## T1bis: Wealth conservation
 
-  Le patrimoine total est la somme de la valeur on-chain et de la valeur immobilisée.
+  Total wealth is the sum of on-chain value and immobilized value.
 -/
 theorem T1bis_conservation_patrimoine (sys : SystemState) :
     sys.V_total = sys.V_on + sys.V_immo :=
   A27_conservation_patrimoine sys
 
-/-! ## T2 : Pas de création monétaire ex-nihilo
+/-! ## T2: No ex-nihilo monetary creation
 
-  La variation de valeur ΔV créée à partir d'énergie est toujours ≥ 0.
+  The value variation ΔV created from energy is always ≥ 0.
 -/
 theorem T2_pas_creation_monetaire
     (η_phys μ_social Δt w_S w_U S_burn U_burn : ℝ)
@@ -97,12 +97,12 @@ theorem T2_pas_creation_monetaire
   exact A6_creation_valeur_energetique η_phys μ_social Δt w_S w_U S_burn U_burn
     h_phys h_social h_convexe h_burn h_dt
 
-/-! # Section 3 : THÉORÈMES DE STABILITÉ (T3-T4) -/
+/-! # Section 3: STABILITY THEOREMS (T3-T4) -/
 
-/-! ## T3 : Thermomètre en zone d'équilibre
+/-! ## T3: Thermometer in equilibrium zone
 
-  Si le ratio r_t = D_total / V_on_total est dans [0.85, 1.15],
-  alors le système est considéré comme stable thermodynamiquement.
+  If the ratio r_t = D_total / V_on_total is in [0.85, 1.15],
+  then the system is considered thermodynamically stable.
 -/
 theorem T3_thermometre_equilibre (rad : RAD)
     (h_stable : 0.85 ≤ thermometre rad ∧ thermometre rad ≤ 1.15) :
@@ -110,23 +110,23 @@ theorem T3_thermometre_equilibre (rad : RAD)
     0.85 ≤ r_t ∧ r_t ≤ 1.15 := by
   exact h_stable
 
-/-! ## T4 : Existence d'un état stationnaire
+/-! ## T4: Existence of a stationary state
 
-  Il existe un état du système où :
+  There exists a system state where:
   - V_total ≥ 0
   - D_total ≥ 0
   - V_total = V_on + V_immo
 -/
 theorem T4_etat_stationnaire_possible :
     ∃ sys : SystemState, sys.V_total ≥ 0 ∧ sys.D_total ≥ 0 ∧ sys.V_total = sys.V_on + sys.V_immo := by
-  -- On construit un état non trivial avec des valeurs réalistes
+  -- We construct a non-trivial state with realistic values
   let sys : SystemState :=
     { utilisateurs := []
       entreprises := []
-      V_total := 1000000  -- 1M de valeur initiale
-      D_total := 1000000  -- Passif correspondant
-      V_on := 700000      -- 70% en circulation
-      V_immo := 300000    -- 30% immobilisé
+      V_total := 1000000  -- 1M initial value
+      D_total := 1000000  -- Corresponding liability
+      V_on := 700000      -- 70% in circulation
+      V_immo := 300000    -- 30% immobilized
       cycle_actuel := 42
       h_conservation := by norm_num
       h_V := by norm_num
@@ -141,11 +141,11 @@ theorem T4_etat_stationnaire_possible :
   · -- V_total = V_on + V_immo
     simpa using sys.h_conservation
 
-/-! # Section 4 : THÉORÈMES D'ÉQUITÉ (T5-T6) -/
+/-! # Section 4: EQUITY THEOREMS (T5-T6) -/
 
-/-! ## T5 : Non-appauvrissement par le RU
+/-! ## T5: No impoverishment by UBI
 
-  Le revenu universel U_t est toujours positif ou nul.
+  The universal basic income U_t is always positive or zero.
 -/
 theorem T5_non_appauvrissement
     (U_t V_on ρ : ℝ) (T N : ℕ)
@@ -154,18 +154,18 @@ theorem T5_non_appauvrissement
     (h_V : 0 ≤ V_on) :
     U_t = (1 - ρ) * V_on / ((T : ℝ) * (N : ℝ)) → 0 ≤ U_t := by
   intro h_def
-  -- On utilise A2 qui garantit déjà 0 ≤ U_t
+  -- We use A2 which already guarantees 0 ≤ U_t
   have h := A2_absence_emission_dette U_t V_on ρ T N h_rho h_params h_V
-  -- A2 donne la forme de U_t ET sa positivité
+  -- A2 gives the form of U_t AND its positivity
   have h_eq : U_t = (1 - ρ) * V_on / ((T : ℝ) * (N : ℝ)) := h.left
   have h_pos : 0 ≤ U_t := h.right
-  -- On ignore la redondance : on garde juste la positivité
+  -- We ignore the redundancy: we keep only the positivity
   exact h_pos
 
-/-! ## T6 : Distribution uniforme du RU
+/-! ## T6: Uniform distribution of UBI
 
-  Si on distribue U_total uniformément sur N bénéficiaires,
-  chacun reçoit U_total / N.
+  If we distribute U_total uniformly among N beneficiaries,
+  each receives U_total / N.
 -/
 theorem T6_distribution_uniforme
     (U_total : ℝ) (N : ℕ) (h_N : 0 < N)
@@ -178,13 +178,13 @@ theorem T6_distribution_uniforme
   intro U_par_personne alloc h_pos
   exact A12_distribution_RU U_total beneficiaires alloc h_pos
 
-/-! # Section 5 : THÉORÈMES DE SÉCURITÉ (T7-T8) -/
+/-! # Section 5: SECURITY THEOREMS (T7-T8) -/
 
-/-! ## T7 : Impossibilité de double-dépense
-  Source : Axiome A3 + A23
+/-! ## T7: Impossibility of double-spending
+  Source: Axiom A3 + A23
 
-  Si la somme de deux transactions dépasse le solde disponible,
-  le compte ne peut pas financer simultanément les deux.
+  If the sum of two transactions exceeds the available balance,
+  the account cannot finance both simultaneously.
 -/
 theorem T7_pas_double_depense
     (cu : CompteUtilisateur)
@@ -193,19 +193,19 @@ theorem T7_pas_double_depense
     ¬ (ValidSig cu tx1 ∧ ValidSig cu tx2 ∧ cu.wallet_V ≥ tx1.montant + tx2.montant) := by
   intro h
   rcases h with ⟨h_sig1, h_sig2, h_cover⟩
-  -- Contradiction entre h_depassement (>) et h_cover (≥)
+  -- Contradiction between h_depassement (>) and h_cover (≥)
   have h_contra : tx1.montant + tx2.montant ≤ cu.wallet_V := by
     linarith [h_cover]
-  -- La contradiction est maintenant explicite
+  -- The contradiction is now explicit
   linarith [h_depassement, h_contra]
 
 
 
 
-/-! ## T8 : Protection contre faillite entreprise
-  Source : Axiome A21
+/-! ## T8: Protection against enterprise bankruptcy
+  Source: Axiom A21
 
-  Les TAP sont garantis par la réserve.
+  TAPs are guaranteed by the reserve.
 -/
 theorem T8_protection_TAP
     (ce : CompteEntrepriseEtendu) :
@@ -213,28 +213,28 @@ theorem T8_protection_TAP
     let TAP_total := (ce.TAP_en_cours.map (·.montant_avance)).sum
     TAP_total ≤ 0.8 * V_reserve := by
   intro V_reserve TAP_total
-  -- A21 exprime exactement cette borne
+  -- A21 expresses exactly this bound
   simpa [V_reserve, TAP_total] using A21_capacite_TAP ce
 
-/-! # Section 6 : THÉORÈMES DE RÉSILIENCE (T9-T10) -/
+/-! # Section 6: RESILIENCE THEOREMS (T9-T10) -/
 
-/-! ## T9 : Unicité des comptes (anti-Sybil)
+/-! ## T9: Uniqueness of accounts (anti-Sybil)
 
-  Deux comptes avec la même paire (TU, VC) sont identiques.
+  Two accounts with the same (TU, VC) pair are identical.
 -/
 theorem T9_unicite_comptes
     (cu1 cu2 : CompteUtilisateur)
     (h_tu : cu1.tu = cu2.tu)
     (h_vc : cu1.vc = cu2.vc) :
     cu1 = cu2 := by
-  -- Directement A23
+  -- Directly A23
   have h := A23_anti_sybil cu1 cu2
   have h' : cu1.tu = cu2.tu ∧ cu1.vc = cu2.vc := ⟨h_tu, h_vc⟩
   exact h h'
 
-/-! ## T10 : Unicité des biens réels
+/-! ## T10: Uniqueness of real assets
 
-  Deux biens avec le même hash_unicite sont identiques.
+  Two assets with the same hash_unicite are identical.
 -/
 theorem T10_unicite_biens
     (bien1 bien2 : ActifReel)
@@ -242,11 +242,11 @@ theorem T10_unicite_biens
     bien1 = bien2 :=
   A14_unicite_biens bien1 bien2 h_hash
 
-/-! # Section 7 : THÉORÈMES DE CIRCULATION (T11-T13) -/
+/-! # Section 7: CIRCULATION THEOREMS (T11-T13) -/
 
-/-! ## T11 : Conversion V→U bornée
+/-! ## T11: Bounded V→U conversion
 
-  La conversion V → U est toujours positive et bornée par 2 * V.
+  The V → U conversion is always positive and bounded by 2 * V.
 -/
 theorem T11_conversion_bornee
     (V_source kappa : ℝ)
@@ -259,22 +259,22 @@ theorem T11_conversion_bornee
   · exact h
   · nlinarith [h_kappa.2, h_V]
 
-/-! ## T12 : Stacking conserve l'énergie
-  Source : Axiome A17
+/-! ## T12: Stacking conserves energy
+  Source: Axiom A17
 
-  ΔV_avance = ΔD_stack (neutralité)
+  ΔV_avance = ΔD_stack (neutrality)
 -/
 theorem T12_stacking_conservatif
     (stack : Stacking) (D_stack : ℝ) :
     let V_avance := stack.montant_initial
     V_avance = D_stack := by
   intro V_avance
-  -- Application directe de l'axiome de neutralité du stacking
+  -- Direct application of the stacking neutrality axiom
   exact A17_stacking_neutre stack D_stack
 
-/-! ## T13 : Distribution organique totale
+/-! ## T13: Total organic distribution
 
-  La somme (part_collaborateurs + part_tresorerie) est égale à ΔV.
+  The sum (part_collaborateurs + part_tresorerie) equals ΔV.
 -/
 theorem T13_distribution_totale
     (ce : CompteEntrepriseEtendu) (ΔV : ℝ) (h_pos : 0 < ΔV) :
@@ -284,9 +284,9 @@ theorem T13_distribution_totale
   have := A22_distribution_organique ce ΔV h_pos
   simpa using this
 
-/-! # Section 8 : THÉORÈMES THERMODYNAMIQUES (T14-T16) -/
+/-! # Section 8: THERMODYNAMIC THEOREMS (T14-T16) -/
 
-/-! ## T14 : Définition explicite du thermomètre
+/-! ## T14: Explicit definition of the thermometer
 
   r_t = D_total / V_on_total
 -/
@@ -295,10 +295,10 @@ theorem T14_thermometre_bien_defini (rad : RAD) :
     r_t = rad.D_total / rad.V_on_total := by
   rfl
 
-/-! ## T15 : η reste dans [0.5, 2.0]
-  Source : Axiome A20
+/-! ## T15: η remains in [0.5, 2.0]
+  Source: Axiom A20
 
-  A20 donne à la fois des règles d’ajustement et la borne 0.5 ≤ η_apres ≤ 2.0.
+  A20 provides both adjustment rules and the bound 0.5 ≤ η_apres ≤ 2.0.
 -/
 
 theorem T15_eta_borne
@@ -308,14 +308,14 @@ theorem T15_eta_borne
       (r_t < 0.85 → η_apres > η_avant) ∧
       0.5 ≤ η_apres ∧ η_apres ≤ 2.0) :
     0.5 ≤ η_apres ∧ η_apres ≤ 2.0 := by
-  -- On extrait explicitement la conjonction des bornes
+  -- We explicitly extract the conjunction of bounds
   obtain ⟨h1, h2, h3, h4⟩ := h_ajust
   exact ⟨h3, h4⟩
 
-/-! ## T16 : Circulation forcée de la trésorerie
+/-! ## T16: Forced circulation of treasury
 
-  La trésorerie d'une entreprise ne peut pas croître indéfiniment :
-  elle est bornée par 1.2 × la moyenne des 3 cycles.
+  An enterprise's treasury cannot grow indefinitely:
+  it is bounded by 1.2 × the average of 3 cycles.
 -/
 theorem T16_circulation_forcee
     (ce : CompteEntrepriseEtendu) (moyenne_3cycles : ℝ)
@@ -323,14 +323,14 @@ theorem T16_circulation_forcee
     ce.tresorerie_V ≤ 1.2 * moyenne_3cycles := by
   exact A25_limite_retention ce moyenne_3cycles
 
-/-! # Section 9 : THÉORÈMES COMPOSÉS (T17-T20) -/
+/-! # Section 9: COMPOSITE THEOREMS (T17-T20) -/
 
-/-! ## T17 : Chaîne de garanties
+/-! ## T17: Chain of guarantees
 
-  On regroupe trois garanties fondamentales :
-  - Validité des signatures (A3)
-  - Distribution intégrale du RU (A12)
-  - Conservation du patrimoine (A27)
+  We group three fundamental guarantees:
+  - Validity of signatures (A3)
+  - Complete distribution of UBI (A12)
+  - Conservation of wealth (A27)
 -/
 theorem T17_chaine_garanties :
     (∀ (cu : CompteUtilisateur) (tx : Transaction), ValidSig cu tx) ∧
@@ -347,10 +347,10 @@ theorem T17_chaine_garanties :
   · intro sys
     exact A27_conservation_patrimoine sys
 
-/-! ## T18 : Compatibilité ascendante
+/-! ## T18: Backward compatibility
 
-  Les théorèmes du noyau (contrat clos, positivité des valeurs)
-  restent vrais dans le système étendu.
+  The core theorems (closed contract, positivity of values)
+  remain true in the extended system.
 -/
 theorem T18_compatibilite_ascendante :
     (∀ (cu : CompteUtilisateur) (tx : Transaction), ValidSig cu tx) ∧
@@ -360,29 +360,29 @@ theorem T18_compatibilite_ascendante :
     exact A3_inviolabilite_transactions cu tx
   · intro v
     have h := A10_conservation_thermodynamique v.V v.D
-    -- On projette seulement V et D
+    -- We only project V and D
     exact h
 
-/-! ## T19 : Cohérence globale des grandeurs
+/-! ## T19: Global coherence of quantities
 
-  Toutes les composantes des Valeurs sont positives ou nulles.
+  All components of Valeurs are positive or zero.
 -/
 theorem T19_coherence_globale (v : Valeurs) :
     0 ≤ v.S ∧ 0 ≤ v.U ∧ 0 ≤ v.V ∧ 0 ≤ v.D := by
-  -- Directement par la définition de Valeurs
+  -- Directly from the definition of Valeurs
   exact ⟨v.hS, v.hU, v.hV, v.hD⟩
 
-/-! ## T20 : NFT productif complet
+/-! ## T20: Complete productive NFT
 
-  Tout NFT de valeur a un Stipulat et une généalogie.
+  Every NFT with value has a Stipulat and a genealogy.
 -/
 theorem T20_nft_complet (nft : NFT) (h_valeur : 0 < nft.valeur) :
     0 < nft.stipulat ∧ (nft.genealogie ≠ [] ∨ nft.valeur = 0) := by
   constructor
-  · -- Stipulat strictement positif
+  · -- Strictly positive Stipulat
     have h_cycle := A26_cycle_nft_productif nft
     exact (h_cycle.1) h_valeur
-  · -- Généalogie non vide (premier cas de l'alternative)
+  · -- Non-empty genealogy (first case of the alternative)
     left
     have h_cycle := A26_cycle_nft_productif nft
     exact (h_cycle.2) h_valeur

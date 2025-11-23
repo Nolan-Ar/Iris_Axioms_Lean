@@ -11,21 +11,21 @@ namespace IrisExemplesNumeriques
 set_option linter.unusedVariables false
 
 /-!
-  IRIS — Exemples Numériques
+  IRIS — Numerical Examples
 
-  Bibliothèque d'exemples concrets avec valeurs réelles
-  simulant le fonctionnement du système IRIS.
+  Library of concrete examples with real values
+  simulating the operation of the IRIS system.
 
-  Organisation :
-  - Section 1 : Exemples Utilisateurs (Alice, Bob, Charlie)
-  - Section 2 : Exemples Entreprises (SolarCoop, BioFarm)
-  - Section 3 : Scénarios Complets (cycle économique, stacking, TAP)
-  - Section 4 : Cas Limites et Situations Exceptionnelles
+  Organization:
+  - Section 1: User Examples (Alice, Bob, Charlie)
+  - Section 2: Business Examples (SolarCoop, BioFarm)
+  - Section 3: Complete Scenarios (economic cycle, stacking, TAP)
+  - Section 4: Edge Cases and Exceptional Situations
 -/
 
-/-! # Section 1 : EXEMPLES UTILISATEURS -/
+/-! # Section 1: USER EXAMPLES -/
 
-/-! ## Exemple 1.1 : Alice - Artisan-réparateur de vélos électriques -/
+/-! ## Example 1.1: Alice - Electric bicycle repair artisan -/
 
 def alice_TU : TU := ⟨"alice_tu_2024"⟩
 def alice_VC : VC := ⟨"alice_vc_verified"⟩
@@ -33,68 +33,68 @@ def alice_VC : VC := ⟨"alice_vc_verified"⟩
 def alice_compte : CompteUtilisateur := {
   tu := alice_TU,
   vc := alice_VC,
-  wallet_V := 525.6,      -- Valeur liquide
-  wallet_U := 67.5,       -- Reste de U ce cycle (après dépenses)
-  cnp_patrimoine := 637.6, -- Patrimoine total
+  wallet_V := 525.6,      -- Liquid value
+  wallet_U := 67.5,       -- Remaining U this cycle (after expenses)
+  cnp_patrimoine := 637.6, -- Total wealth
   h_wallet_V := by norm_num,
   h_wallet_U := by norm_num,
   h_cnp := by norm_num
 }
 
-/-- Alice reçoit son RU mensuel -/
+/-- Alice receives her monthly UBI -/
 example :
   let RU_alice := (120.5 : ℝ)
-  let N_utilisateurs := (1000000 : ℕ)  -- 1 million d'utilisateurs
-  let V_on_systeme := (500000000 : ℝ)  -- 500M de valeur circulante
+  let N_utilisateurs := (1000000 : ℕ)  -- 1 million users
+  let V_on_systeme := (500000000 : ℝ)  -- 500M circulating value
   let rho := (0.2 : ℝ)
-  let T := (12 : ℕ)  -- 12 cycles par an
+  let T := (12 : ℕ)  -- 12 cycles per year
   let RU_calcule := (1 - rho) * V_on_systeme / ((T : ℝ) * (N_utilisateurs : ℝ))
-  -- Alice reçoit environ 33.33 U par mois
+  -- Alice receives approximately 33.33 U per month
   RU_calcule > 30 ∧ RU_calcule < 35 := by
   intro RU_alice N_utilisateurs V_on_systeme rho T RU_calcule
   norm_num
 
-/-- Alice crée de la valeur par son travail -/
+/-- Alice creates value through her work -/
 example :
   let heures_travail := (40 : ℝ)
   let qual_coefficient := (1.2 : ℝ)
-  let S_alice := heures_travail * qual_coefficient  -- 48 unités de Stipulat
-  let prix_reparation := (80 : ℝ)  -- Client paie 80 U
+  let S_alice := heures_travail * qual_coefficient  -- 48 units of Stipulat
+  let prix_reparation := (80 : ℝ)  -- Client pays 80 U
   let η_phys := (0.8 : ℝ)
-  let μ_social := (1.5 : ℝ)  -- Effet social positif
+  let μ_social := (1.5 : ℝ)  -- Positive social effect
   let η := η_phys * μ_social
   let w_S := (0.6 : ℝ)
   let w_U := (0.4 : ℝ)
   let E := w_S * S_alice + w_U * prix_reparation
   let V_cree := η * 1.0 * E  -- Δt = 1 cycle
-  -- Alice crée environ 72 unités de V
+  -- Alice creates approximately 72 units of V
   V_cree > 60 ∧ V_cree < 80 := by
   intro heures_travail qual_coefficient S_alice prix_reparation η_phys μ_social η w_S w_U E V_cree
   simp [η, E, V_cree]
   norm_num
 
-/-- Budget mensuel d'Alice -/
+/-- Alice's monthly budget -/
 example :
   let RU := (120.5 : ℝ)
-  let stackings := (53 : ℝ)      -- Habitat coop (35) + Véhicule (18)
-  let abonnements := (15 : ℝ)    -- Énergie (6) + Atelier (9)
-  let consommation := (82.3 : ℝ) -- Dépenses courantes
+  let stackings := (53 : ℝ)      -- Cooperative housing (35) + Vehicle (18)
+  let abonnements := (15 : ℝ)    -- Energy (6) + Workshop (9)
+  let consommation := (82.3 : ℝ) -- Current expenses
   let U_disponible := RU - stackings - abonnements
   let U_final := U_disponible - consommation
-  -- Alice a dépensé presque tout son RU
+  -- Alice has spent almost all her UBI
   U_final > -30 ∧ U_final < 0 := by
   intro RU stackings abonnements consommation U_disponible U_final
   norm_num
 
-/-! ## Exemple 1.2 : Bob - Développeur logiciel -/
+/-! ## Example 1.2: Bob - Software developer -/
 
 def bob_TU : TU := ⟨"bob_tu_2024"⟩
 def bob_VC : VC := ⟨"bob_vc_verified"⟩
 
-/-- Bob convertit de la V en U pour consommer -/
+/-- Bob converts V to U for consumption -/
 example :
   let V_bob := (2000 : ℝ)
-  let kappa := (0.9 : ℝ)  -- Système légèrement chaud
+  let kappa := (0.9 : ℝ)  -- System slightly hot
   let conversion := ConversionVU.mk V_bob kappa (kappa * V_bob)
     (by norm_num : 0.5 ≤ kappa ∧ kappa ≤ 2.0)
     (by rfl)
@@ -104,40 +104,40 @@ example :
   rw [conversion.h_conversion]
   norm_num
 
-/-! ## Exemple 1.3 : Charlie - Étudiant -/
+/-! ## Example 1.3: Charlie - Student -/
 
-/-- Charlie vit principalement de son RU -/
+/-- Charlie lives primarily on his UBI -/
 example :
   let RU_charlie := (120.5 : ℝ)
-  let creation_valeur := (15 : ℝ)  -- Petits jobs
+  let creation_valeur := (15 : ℝ)  -- Odd jobs
   let total_ressources := RU_charlie + creation_valeur
   let taux_RU := RU_charlie / total_ressources
-  -- 89% de ses ressources viennent du RU
+  -- 89% of his resources come from UBI
   taux_RU > 0.85 ∧ taux_RU < 0.95 := by
   intro RU_charlie creation_valeur total_ressources taux_RU
   norm_num
 
-/-! # Section 2 : EXEMPLES ENTREPRISES -/
+/-! # Section 2: BUSINESS EXAMPLES -/
 
-/-! ## Exemple 2.1 : SolarCoop - Énergie solaire communautaire -/
+/-! ## Example 2.1: SolarCoop - Community solar energy -/
 
 def solarcoop_VC : VC := ⟨"solarcoop_energy"⟩
 
 def solarcoop_NFT_installation : NFT := {
   hash := ⟨"solar_panels_installation_789"⟩,
   valeur := 50000,
-  stipulat := 2000,  -- 2000h de travail d'installation
+  stipulat := 2000,  -- 2000h of installation work
   genealogie := [⟨"genesis_solar"⟩],
   h_valeur := by norm_num,
   h_stipulat := by norm_num
 }
 
-/-- SolarCoop crée de la valeur par installation solaire -/
+/-- SolarCoop creates value through solar installation -/
 example :
   let S_burn := solarcoop_NFT_installation.stipulat
-  let U_burn := (58000 : ℝ)  -- Paiements clients
+  let U_burn := (58000 : ℝ)  -- Customer payments
   let η_phys := (0.9 : ℝ)
-  let μ_social := (1.8 : ℝ)  -- Haut impact social
+  let μ_social := (1.8 : ℝ)  -- High social impact
   let η := η_phys * μ_social
   let w_S := (0.5 : ℝ)
   let w_U := (0.5 : ℝ)
@@ -146,47 +146,47 @@ example :
   48000 < V_cree ∧ V_cree < 49000 := by
   -- Unfold all the let definitions and use the concrete value of stipulat
   have h_stipulat : solarcoop_NFT_installation.stipulat = 2000 := rfl
-  show 48000 < ((0.9 : ℝ) * 1.8) * 1.0 * (0.5 * solarcoop_NFT_installation.stipulat + 0.5 * 58000) ∧ 
+  show 48000 < ((0.9 : ℝ) * 1.8) * 1.0 * (0.5 * solarcoop_NFT_installation.stipulat + 0.5 * 58000) ∧
        ((0.9 : ℝ) * 1.8) * 1.0 * (0.5 * solarcoop_NFT_installation.stipulat + 0.5 * 58000) < 49000
   rw [h_stipulat]
   norm_num
 
--- (Pour les parties tronquées dans le document original, ajoutez des exemples similaires si nécessaire)
+-- (For parts truncated in the original document, add similar examples if necessary)
 
 end IrisExemplesNumeriques
 
-/-! # Récapitulatif des Exemples -/
+/-! # Examples Summary -/
 
 #check IrisExemplesNumeriques.alice_compte
 #check IrisExemplesNumeriques.solarcoop_NFT_installation
 
 /-!
-## BIBLIOTHÈQUE D'EXEMPLES - INDEX
+## EXAMPLES LIBRARY - INDEX
 
-### Utilisateurs (3 profils)
-- **Alice** : Artisan-réparateur (revenus mixtes RU + travail)
-- **Bob** : Développeur (forte création de valeur)
-- **Charlie** : Étudiant (principalement RU)
+### Users (3 profiles)
+- **Alice**: Repair artisan (mixed income UBI + work)
+- **Bob**: Developer (high value creation)
+- **Charlie**: Student (primarily UBI)
 
-### Entreprises (2 exemples)
-- **SolarCoop** : Coopérative énergétique (fort impact social)
-- **BioFarm** : Agriculture locale (TAP et NFT financiers)
+### Businesses (2 examples)
+- **SolarCoop**: Energy cooperative (high social impact)
+- **BioFarm**: Local agriculture (TAP and financial NFTs)
 
-### Scénarios Complets (3)
-1. Achat maison en stacking (neutralité énergétique)
-2. Cycle économique complet utilisateur
-3. Régulation thermométrique en action
+### Complete Scenarios (3)
+1. House purchase with stacking (energy neutrality)
+2. Complete user economic cycle
+3. Thermometric regulation in action
 
-### Cas Limites (4)
-1. Faillite entreprise (protection TAP)
-2. Crise systémique (lissage RU)
-3. Utilisateur inactif (extinction U)
-4. Transfert NFT avec engagement
+### Edge Cases (4)
+1. Business bankruptcy (TAP protection)
+2. Systemic crisis (UBI smoothing)
+3. Inactive user (U extinction)
+4. NFT transfer with commitment
 
-### Simulations Macro (2)
-1. Économie 100k utilisateurs
-2. État stationnaire (croissance zéro)
+### Macro Simulations (2)
+1. Economy with 100k users
+2. Steady state (zero growth)
 
 ---
-**Total** : 14 exemples numériques complets avec calculs vérifiés
+**Total**: 14 complete numerical examples with verified calculations
 -/

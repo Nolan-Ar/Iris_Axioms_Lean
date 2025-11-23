@@ -1,243 +1,243 @@
-# IRIS Axioms - Formalisation en Lean 4
+# IRIS Axioms - Formal Verification in Lean 4
 
-Formalisation mathématique des axiomes IRIS (Integrated Resource Information System) en Lean 4, avec preuves vérifiées de cohérence et de propriétés économiques.
+Mathematical formalization of IRIS (Integrated Resource Information System) axioms in Lean 4, with verified proofs of consistency and economic properties.
 
 ## Description
 
-Ce projet formalise un système économique basé sur :
-- **Axiomes fondamentaux** : Conservation monétaire, distribution du revenu universel, inviolabilité
-- **Théorie des jeux** : Stratégies, équilibres de Nash, mécanismes d'incitation
-- **Contrats incomplets** : Validation partielle, résolution de conflits
-- **Échange d'énergie** : Modélisation des flux énergétiques
-- **NFTs et généalogie** : Traçabilité cryptographique
+This project formalizes an economic system based on:
+- **Fundamental Axioms**: Monetary conservation, universal basic income distribution, inviolability
+- **Game Theory**: Strategies, Nash equilibria, incentive mechanisms
+- **Incomplete Contracts**: Partial validation, conflict resolution
+- **Energy Exchange**: Modeling of energy flows
+- **NFTs and Genealogy**: Cryptographic traceability
 
-## Installation rapide
+## Quick Start
 
-### Prérequis
+### Prerequisites
 
 - **Lean 4** (v4.24.0)
 - **Git**
-- **curl** (pour elan)
-- Au moins **4 GB de RAM** disponible
-- **~10 GB d'espace disque** (pour Mathlib et dépendances)
+- **curl** (for elan)
+- At least **4 GB of available RAM**
+- **~10 GB of disk space** (for Mathlib and dependencies)
 
-### Installation automatique
+### Automatic Installation
 
 ```bash
-# Cloner le projet
+# Clone the project
 git clone https://github.com/Nolan-Ar/Iris_Axioms_Lean.git
 cd Iris_Axioms_Lean
 
-# Lancer le script d'installation
+# Run the installation script
 chmod +x setup.sh
 ./setup.sh
 ```
 
-### Installation manuelle
+### Manual Installation
 
-#### 1. Installer elan (gestionnaire de versions Lean)
+#### 1. Install elan (Lean version manager)
 
 ```bash
 curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh
 ```
 
-Puis redémarrer votre terminal ou exécuter :
+Then restart your terminal or run:
 ```bash
-source ~/.profile  # ou ~/.bashrc selon votre shell
+source ~/.profile  # or ~/.bashrc depending on your shell
 ```
 
-#### 2. Vérifier l'installation de Lean
+#### 2. Verify Lean installation
 
 ```bash
-lean --version  # Devrait afficher : Lean (version 4.24.0, ...)
-lake --version  # Lake est l'outil de build de Lean
+lean --version  # Should display: Lean (version 4.24.0, ...)
+lake --version  # Lake is Lean's build tool
 ```
 
-#### 3. Récupérer les dépendances du projet
+#### 3. Fetch project dependencies
 
 ```bash
 lake update
 ```
 
-#### 4. Compiler le projet
+#### 4. Build the project
 
 ```bash
 lake build
 ```
 
-**Note** : La première compilation peut prendre **20-40 minutes** car Mathlib (la bibliothèque mathématique standard de Lean) doit être compilée.
+**Note**: The first build can take **20-40 minutes** as Mathlib (Lean's standard mathematical library) needs to be compiled.
 
-## Utilisation
+## Usage
 
-### Compiler le projet
+### Build the project
 
 ```bash
-# Compilation complète
+# Full build
 lake build
 
-# Ou utiliser le Makefile
+# Or use the Makefile
 make build
 ```
 
-### Exécuter le programme
+### Run the program
 
 ```bash
-# Lancer l'exécutable principal
+# Run the main executable
 lake exe irisaxioms
 
-# Ou
+# Or
 make run
 ```
 
-Affiche : `IRIS compilé. Toutes les preuves ont été vérifiées`
+Displays: `IRIS compiled. All proofs have been verified`
 
-### Vérifier les preuves
+### Verify proofs
 
 ```bash
-# Vérifier un fichier spécifique
+# Verify a specific file
 lean IrisAxioms/iris_axioms.lean
 
-# Nettoyer et recompiler
+# Clean and rebuild
 make clean
 make build
 ```
 
-### Travailler avec VS Code
+### Working with VS Code
 
-1. Installer [VS Code](https://code.visualstudio.com/)
-2. Installer l'extension **Lean 4** (ID: `leanprover.lean4`)
-3. Ouvrir le dossier du projet dans VS Code
-4. Les fichiers `.lean` bénéficieront :
-   - De la coloration syntaxique
-   - Des messages d'erreur en temps réel
-   - De l'autocomplétion
-   - Des infobulles pour les théorèmes
+1. Install [VS Code](https://code.visualstudio.com/)
+2. Install the **Lean 4** extension (ID: `leanprover.lean4`)
+3. Open the project folder in VS Code
+4. `.lean` files will benefit from:
+   - Syntax highlighting
+   - Real-time error messages
+   - Autocompletion
+   - Theorem tooltips
 
-## Structure du projet
+## Project Structure
 
 ```
 Iris_Axioms_Lean/
 ├── IrisAxioms/
-│   ├── iris_axioms.lean                 # Axiomes fondamentaux IRIS
-│   ├── iris_axioms_extended.lean        # Extensions des axiomes
-│   ├── iris_theoremes_extended.lean     # Théorèmes avancés
-│   ├── iris_brique.lean                 # Briques de base (TU, VC, Hash)
-│   ├── iris_game_theory.lean            # Théorie des jeux appliquée
-│   ├── iris_incomplete_contracts.lean   # Contrats incomplets
-│   ├── iris_energy_exchange.lean        # Échange d'énergie
-│   ├── iris_exemples_numeriques.lean    # Exemples et cas pratiques
-│   ├── iris_validation_complete.lean    # Validation globale
-│   └── validation_correctifs.lean       # Correctifs de validation
-├── IrisAxioms.lean                      # Point d'entrée de la bibliothèque
-├── Main.lean                            # Programme principal
-├── lakefile.lean                        # Configuration Lake (build)
-├── lean-toolchain                       # Version de Lean (v4.24.0)
-└── README.md                            # Ce fichier
+│   ├── iris_axioms.lean                 # Core IRIS axioms
+│   ├── iris_axioms_extended.lean        # Extended axioms
+│   ├── iris_theoremes_extended.lean     # Advanced theorems
+│   ├── iris_brique.lean                 # Basic building blocks (TU, VC, Hash)
+│   ├── iris_game_theory.lean            # Applied game theory
+│   ├── iris_incomplete_contracts.lean   # Incomplete contracts
+│   ├── iris_energy_exchange.lean        # Energy exchange
+│   ├── iris_exemples_numeriques.lean    # Examples and practical cases
+│   ├── iris_validation_complete.lean    # Global validation
+│   └── validation_correctifs.lean       # Validation fixes
+├── IrisAxioms.lean                      # Library entry point
+├── Main.lean                            # Main program
+├── lakefile.lean                        # Lake configuration (build)
+├── lean-toolchain                       # Lean version (v4.24.0)
+└── README.md                            # This file
 ```
 
-## Modules principaux
+## Main Modules
 
 ### 1. `iris_axioms.lean`
-Définit les axiomes fondamentaux :
-- **Conservation monétaire** : S + U + V + D = 0
-- **Distribution du RU** : Mécanisme de revenu universel
-- **Inviolabilité** : Protection cryptographique via signatures
+Defines the fundamental axioms:
+- **Monetary Conservation**: S + U + V + D = 0
+- **UBI Distribution**: Universal basic income mechanism
+- **Inviolability**: Cryptographic protection via signatures
 
-Structures principales :
-- `Valeurs` : Grandeurs économiques (S, U, V, D)
-- `CompteUtilisateur` : Wallets et patrimoine CNP
-- `NFT` : Tokens non-fongibles avec généalogie
-- `Transaction` : Transferts de valeur avec preuves
+Main structures:
+- `Valeurs`: Economic quantities (S, U, V, D)
+- `CompteUtilisateur`: Wallets and CNP patrimony
+- `NFT`: Non-fungible tokens with genealogy
+- `Transaction`: Value transfers with proofs
 
 ### 2. `iris_game_theory.lean`
-Modélise les interactions stratégiques :
-- Jeux à deux joueurs
-- Équilibres de Nash
-- Mécanismes d'incitation
-- Théorème de stabilité des équilibres
+Models strategic interactions:
+- Two-player games
+- Nash equilibria
+- Incentive mechanisms
+- Equilibrium stability theorem
 
 ### 3. `iris_incomplete_contracts.lean`
-Gestion des contrats partiellement définis :
-- Spécification partielle des clauses
-- Mécanismes de résolution de conflits
-- Théorème d'exécution partielle valide
+Management of partially defined contracts:
+- Partial specification of clauses
+- Conflict resolution mechanisms
+- Valid partial execution theorem
 
 ### 4. `iris_energy_exchange.lean`
-Modélisation des flux énergétiques :
-- Conservation de l'énergie
-- Équivalence énergie-monnaie
-- Efficacité des transferts
+Modeling of energy flows:
+- Energy conservation
+- Energy-money equivalence
+- Transfer efficiency
 
-## Exemples d'utilisation
+## Usage Examples
 
-### Créer une transaction
+### Create a transaction
 
 ```lean
 import IrisAxioms.iris_axioms
 
 open IrisAxioms
 
-def exemple_transaction : Transaction := {
+def example_transaction : Transaction := {
   emetteur := TU.mk "Alice"
   recepteur := TU.mk "Bob"
   montant_V := 100.0
   montant_U := 50.0
-  preuve_signature := Hash.mk "signature_cryptographique"
+  preuve_signature := Hash.mk "cryptographic_signature"
   horodatage := 1234567890
   h_montant_V := by norm_num
   h_montant_U := by norm_num
 }
 ```
 
-### Vérifier la conservation monétaire
+### Verify monetary conservation
 
 ```lean
--- Voir IrisAxioms/iris_exemples_numeriques.lean
-theorem conservation_exemple : ∃ v : Valeurs, v.S + v.U + v.V + v.D = 0 := by
+-- See IrisAxioms/iris_exemples_numeriques.lean
+theorem conservation_example : ∃ v : Valeurs, v.S + v.U + v.V + v.D = 0 := by
   use { S := 1000, U := 500, V := -1200, D := -300,
         hS := by norm_num, hU := by norm_num,
         hV := by norm_num, hD := by norm_num }
   norm_num
 ```
 
-## Commandes utiles
+## Useful Commands
 
 ```bash
-# Compiler rapidement (sans Mathlib)
+# Quick build (without Mathlib)
 lake build IrisAxioms
 
-# Nettoyer les fichiers compilés
+# Clean compiled files
 lake clean
 
-# Mettre à jour les dépendances
+# Update dependencies
 lake update
 
-# Rechercher des théorèmes
+# Search for theorems
 lake env lean --run search_tool.lean
 
-# Formater le code
+# Format code
 lake exe format
 ```
 
-## Résolution de problèmes
+## Troubleshooting
 
-### Erreur : `lake: command not found`
+### Error: `lake: command not found`
 
-Assurez-vous que elan est correctement installé et dans votre PATH :
+Make sure elan is properly installed and in your PATH:
 ```bash
 source ~/.profile
 elan toolchain list
 ```
 
-### Erreur : Compilation très lente
+### Error: Very slow compilation
 
-C'est normal pour la première compilation de Mathlib. Pour accélérer :
+This is normal for the first Mathlib compilation. To speed up:
 ```bash
-# Télécharger les binaires pré-compilés de Mathlib
+# Download pre-compiled Mathlib binaries
 lake exe cache get
 ```
 
-### Erreur : `unknown package 'mathlib'`
+### Error: `unknown package 'mathlib'`
 
 ```bash
 lake update
@@ -245,46 +245,46 @@ lake clean
 lake build
 ```
 
-### Problème de mémoire
+### Memory issues
 
-Mathlib nécessite beaucoup de RAM. Si compilation échoue :
-- Fermer les autres applications
-- Augmenter le swap système
-- Compiler module par module au lieu de `lake build`
+Mathlib requires a lot of RAM. If compilation fails:
+- Close other applications
+- Increase system swap
+- Compile module by module instead of `lake build`
 
-## Documentation Lean
+## Lean Documentation
 
-- [Manuel Lean 4](https://lean-lang.org/lean4/doc/)
+- [Lean 4 Manual](https://lean-lang.org/lean4/doc/)
 - [Mathlib Docs](https://leanprover-community.github.io/mathlib4_docs/)
 - [Theorem Proving in Lean 4](https://lean-lang.org/theorem_proving_in_lean4/)
-- [Lean Zulip Chat](https://leanprover.zulipchat.com/) (communauté)
+- [Lean Zulip Chat](https://leanprover.zulipchat.com/) (community)
 
-## Contribution
+## Contributing
 
-1. Fork le projet
-2. Créer une branche (`git checkout -b feature/amelioration`)
-3. Commit vos changements (`git commit -m 'Ajout de nouvelle fonctionnalité'`)
-4. Push vers la branche (`git push origin feature/amelioration`)
-5. Ouvrir une Pull Request
+1. Fork the project
+2. Create a branch (`git checkout -b feature/improvement`)
+3. Commit your changes (`git commit -m 'Add new feature'`)
+4. Push to the branch (`git push origin feature/improvement`)
+5. Open a Pull Request
 
-### Standards de code
+### Code Standards
 
-- **Preuves complètes** : Pas de `sorry`
-- **Documentation** : Commentaires `/-! ... -/` pour les sections
-- **Nomenclature** : CamelCase pour les types, snake_case pour les définitions
-- **Tests** : Exemples numériques dans `iris_exemples_numeriques.lean`
+- **Complete proofs**: No `sorry`
+- **Documentation**: `/-! ... -/` comments for sections
+- **Naming**: CamelCase for types, snake_case for definitions
+- **Tests**: Numerical examples in `iris_exemples_numeriques.lean`
 
-## Licence
+## License
 
-[À définir selon votre projet]
+[To be defined according to your project]
 
 ## Contact
 
-Pour toute question ou suggestion, ouvrir une issue sur GitHub.
+For any questions or suggestions, open an issue on GitHub.
 
 ---
 
-**Statut** : Toutes les preuves sont vérifiées et complètes (sans `sorry`)
+**Status**: All proofs are verified and complete (no `sorry`)
 
-**Version Lean** : 4.24.0
-**Version Mathlib** : 4.24.0
+**Lean Version**: 4.24.0
+**Mathlib Version**: 4.24.0

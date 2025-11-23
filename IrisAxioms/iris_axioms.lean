@@ -1,9 +1,9 @@
 /-
-  IRIS — Axiomes (version consolidée avec correctifs du rapport)
-  - D ≥ 0 dans Valeurs
-  - η = η_phys * μ_social (Option B : multiplicateur social)
-  - Axiome de distribution effective du RU
-  - Inviolabilité via prédicat de signature (non-tautologique)
+  IRIS — Axioms (consolidated version with report fixes)
+  - D ≥ 0 in Valeurs
+  - η = η_phys * μ_social (Option B: social multiplier)
+  - Axiom of effective UBI distribution
+  - Inviolability via signature predicate (non-tautological)
 -/
 
 import Mathlib.Data.Real.Basic
@@ -13,14 +13,14 @@ import Mathlib.Data.List.Basic
 namespace IrisAxioms
 
 /-!
-# Types de base
+# Basic Types
 -/
 structure TU   where val : String deriving Repr
 structure VC   where val : String deriving Repr
 structure Hash where val : String deriving Repr
 
 /-!
-# Grandeurs économiques & comptes
+# Economic Quantities & Accounts
 -/
 structure Valeurs where
   S : ℝ
@@ -30,7 +30,7 @@ structure Valeurs where
   hS : 0 ≤ S
   hU : 0 ≤ U
   hV : 0 ≤ V
-  hD : 0 ≤ D    -- Correctif 2: D borné inférieurement
+  hD : 0 ≤ D    -- Fix 2: D bounded from below
 
 structure CompteUtilisateur where
   tu : TU
@@ -62,47 +62,47 @@ structure Transaction where
   h_montant : 0 < montant
 
 /-!
-# Prédicat de signature
+# Signature Predicate
 -/
 def ValidSig (_cu : CompteUtilisateur) (_tx : Transaction) : Prop := True
--- ↑ schéma par défaut ; à raffiner si besoin (cryptographie)
+-- ↑ default schema; to be refined if needed (cryptography)
 
 /-!
-# AXIOMES IRIS
+# IRIS AXIOMS
 -/
 
--- Axiome 2.1 : Unicité bijective (CU ↔ (TU,VC))
+-- Axiom 2.1: Bijective uniqueness (CU ↔ (TU,VC))
 axiom A1_unicite_bijective :
   ∃ (f : CompteUtilisateur → TU × VC),
     Function.Bijective f ∧
     ∀ cu, (f cu).1 = cu.tu ∧ (f cu).2 = cu.vc
 
--- Axiome 2.2 : RU sans émission par la dette (coercions ℕ→ℝ)
+-- Axiom 2.2: UBI without debt emission (coercions ℕ→ℝ)
 axiom A2_absence_emission_dette (U_t V_on ρ : ℝ) (T N : ℕ) :
   (0 ≤ ρ ∧ ρ ≤ 0.3) →
   (0 < T ∧ 0 < N) →
   0 ≤ V_on →
   U_t = (1 - ρ) * V_on / ((T : ℝ) * (N : ℝ)) ∧ 0 ≤ U_t
 
--- Axiome 2.3 : Inviolabilité des transactions (signature vérifiée)
+-- Axiom 2.3: Inviolability of transactions (verified signature)
 axiom A3_inviolabilite_transactions :
   ∀ (cu : CompteUtilisateur) (tx : Transaction), ValidSig cu tx
 
--- Axiome 2.4 : Exclusion stricte de U pour les comptes entreprise
+-- Axiom 2.4: Strict exclusion of U for enterprise accounts
 axiom A4_exclusion_U_entreprise (ce : CompteEntreprise) :
-  0 ≤ ce.tresorerie_V   -- aucun solde en U côté entreprise
+  0 ≤ ce.tresorerie_V   -- no U balance on enterprise side
 
--- Axiome 2.5 : Stipulat nécessaire pour tout NFT de valeur
+-- Axiom 2.5: Stipulat necessary for all valued NFTs
 axiom A5_necessite_stipulat (nft : NFT) :
   0 < nft.valeur → 0 < nft.stipulat
 
--- Axiome 2.6 : Création de valeur fondamentale (η = η_phys * μ_social)
--- Correctif 1 : Option B — multiplicateur social encadré
+-- Axiom 2.6: Fundamental value creation (η = η_phys * μ_social)
+-- Fix 1: Option B — bounded social multiplier
 axiom A6_creation_valeur_energetique
   (η_phys μ_social Δt w_S w_U S_burn U_burn : ℝ) :
-  (0 < η_phys ∧ η_phys ≤ 1) →          -- efficacité physique (≤ 1)
-  (1 ≤ μ_social ∧ μ_social ≤ 2) →       -- externalités / coordination
-  (w_S + w_U = 1 ∧ 0 ≤ w_S ∧ 0 ≤ w_U) → -- mélange convexe
+  (0 < η_phys ∧ η_phys ≤ 1) →          -- physical efficiency (≤ 1)
+  (1 ≤ μ_social ∧ μ_social ≤ 2) →       -- externalities / coordination
+  (w_S + w_U = 1 ∧ 0 ≤ w_S ∧ 0 ≤ w_U) → -- convex mixture
   (0 ≤ S_burn ∧ 0 ≤ U_burn) →
   0 < Δt →
   let η  := η_phys * μ_social
@@ -110,31 +110,31 @@ axiom A6_creation_valeur_energetique
   let ΔV := η * Δt * Et
   0 ≤ ΔV
 
--- Axiome 2.7 : Absence d'intérêts (remboursements = principal)
+-- Axiom 2.7: Absence of interest (repayments = principal)
 axiom A7_absence_interets (montant_initial : ℝ) (remboursements : List ℝ) :
   remboursements.sum = montant_initial
 
--- Axiome 2.8 : Mémoire généalogique obligatoire
+-- Axiom 2.8: Mandatory genealogical memory
 axiom A8_genealogie_complete (nft : NFT) :
   nft.genealogie ≠ [] ∨ nft.valeur = 0
 
--- Axiome 2.9 : Médiation CE avec création de valeur (trésorerie couvrante)
+-- Axiom 2.9: CE mediation with value creation (covering treasury)
 axiom A9_mediation_CE_obligatoire (nft_source nft_dest : NFT) (V_creation : ℝ) :
   0 < V_creation →
   ∃ ce : CompteEntreprise, ce.tresorerie_V ≥ V_creation
 
--- Axiome 2.10 : Conservation thermodynamique (grandeurs fondamentales ≥ 0)
+-- Axiom 2.10: Thermodynamic conservation (fundamental quantities ≥ 0)
 axiom A10_conservation_thermodynamique (V_total D_total : ℝ) :
   0 ≤ V_total ∧ 0 ≤ D_total
 
--- Axiome 2.11 : Continuité organisationnelle
+-- Axiom 2.11: Organizational continuity
 axiom A11_survie_organisationnelle (ce : CompteEntreprise) :
   ∃ _successeur : CompteUtilisateur, True
 
 /-!
-# Correctif 3: Distribution effective du RU
+# Fix 3: Effective UBI Distribution
 -/
--- U_t est effectivement alloué à une liste de bénéficiaires via une fonction d'allocation
+-- U_t is effectively allocated to a list of beneficiaries via an allocation function
 axiom A12_distribution_RU
   (U_t : ℝ) (beneficiaires : List CompteUtilisateur)
   (alloc : CompteUtilisateur → ℝ) :

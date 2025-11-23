@@ -12,23 +12,23 @@ namespace IrisValidationComplete
 set_option linter.unusedVariables false
 
 /-!
-  IRIS — Validation Complète
+  IRIS — Complete Validation
 
-  Tests étendus pour valider tous les axiomes et théorèmes.
-  Inclut les tests originaux + 20+ nouveaux tests.
+  Extended tests to validate all axioms and theorems.
+  Includes original tests + 20+ new tests.
 
-  Organisation :
-  - Section 1 : Tests originaux (validation_correctifs)
-  - Section 2 : Tests Oracle et Initialisation
-  - Section 3 : Tests Conversion et Circulation
-  - Section 4 : Tests Stacking
-  - Section 7 : Scénarios d'attaque
-  - Section 8 : Tests de cohérence globale
+  Organization:
+  - Section 1: Original tests (validation_correctifs)
+  - Section 2: Oracle and Initialization tests
+  - Section 3: Conversion and Circulation tests
+  - Section 4: Stacking tests
+  - Section 7: Attack scenarios
+  - Section 8: Global coherence tests
 -/
 
-/-! # Section 1 : TESTS ORIGINAUX -/
+/-! # Section 1: ORIGINAL TESTS -/
 
-/-! ## Test η décomposé -/
+/-! ## Decomposed η test -/
 
 theorem test_eta_decompose :
   ∀ (η_phys μ_social : ℝ),
@@ -51,7 +51,7 @@ theorem test_eta_physique_pur :
   simp [η, μ_social]
   linarith [h_phys.2]
 
-/-! ## Test D positif -/
+/-! ## Positive D test -/
 
 theorem test_dette_positive (v : Valeurs) :
   0 ≤ v.D := v.hD
@@ -66,19 +66,19 @@ theorem test_conservation_coherente :
   · exact v.hV
   · exact v.hD
 
-/-! ## Test distribution RU -/
+/-! ## RU distribution test -/
 
 theorem test_distribution_effective
   (_U_t : ℝ)
   (beneficiaires : List CompteUtilisateur)
   (alloc : CompteUtilisateur → ℝ)
-  (h_pos : ∀ cu, cu ∈ beneficiaires → 0 ≤ alloc cu) :  -- CORRIGÉ
+  (h_pos : ∀ cu, cu ∈ beneficiaires → 0 ≤ alloc cu) :  -- CORRECTED
   (beneficiaires.attach.map (fun ⟨cu,_⟩ => alloc cu)).sum = _U_t :=
   A12_distribution_RU _U_t beneficiaires alloc h_pos
 
-/-! # Section 2 : TESTS ORACLE ET INITIALISATION -/
+/-! # Section 2: ORACLE AND INITIALIZATION TESTS -/
 
-/-! ## Test neutralité initiale -/
+/-! ## Initial neutrality test -/
 
 example :
   let bien1 : ActifReel := {
@@ -105,7 +105,7 @@ example :
   intro bien1 bien2 oracle V_total D_total
   norm_num
 
-/-! ## Test unicité des biens -/
+/-! ## Asset uniqueness test -/
 
 theorem test_unicite_biens_detection :
   ∀ (hash_commun : Hash),
@@ -125,9 +125,9 @@ theorem test_unicite_biens_detection :
   intro hash_commun bien1 bien2
   exact A14_unicite_biens bien1 bien2 rfl
 
-/-! # Section 3 : TESTS CONVERSION ET CIRCULATION -/
+/-! # Section 3: CONVERSION AND CIRCULATION TESTS -/
 
-/-! ## Test conversion V→U avec différents κ -/
+/-! ## V→U conversion test with different κ -/
 
 example :
   let V_source := (1000 : ℝ)
@@ -145,12 +145,12 @@ example :
   intro V_source kappa U_obtenu
   norm_num
 
-/-! ## Test bornes de κ -/
+/-! ## κ bounds test -/
 
 theorem test_kappa_bornes (kappa : ℝ) (h : 0.5 ≤ kappa ∧ kappa ≤ 2.0) :
     0.5 ≤ kappa ∧ kappa ≤ 2.0 := h
 
-/-! ## Test extinction périodique U -/
+/-! ## Periodic U extinction test -/
 
 example :
   let wallet : WalletEtendu := {
@@ -171,14 +171,14 @@ example :
     h_U := by norm_num,
     h_V := by norm_num
   }
-  -- En fin de cycle, U_actuel devrait être détruit
+  -- At end of cycle, U_actuel should be destroyed
   wallet.U_actuel ≥ 0 := by
   intro wallet
   exact wallet.h_U
 
-/-! # Section 4 : TESTS STACKING -/
+/-! # Section 4: STACKING TESTS -/
 
-/-- Test 4.1 : Neutralité énergétique du stacking -/
+/-- Test 4.1: Energy neutrality of stacking -/
 theorem test_stacking_neutre :
   let stack : Stacking := {
     montant_initial := 5000,
@@ -191,11 +191,11 @@ theorem test_stacking_neutre :
   intro stack D_stack
   exact A17_stacking_neutre stack D_stack
 
-/-- Test 4.2 : Transfert d'engagement lors d'un changement de propriétaire -/
--- SIMPLIFICATION : on teste juste que l'axiome existe et retourne True
+/-- Test 4.2: Transfer of commitment during owner change -/
+-- SIMPLIFICATION: we just test that the axiom exists and returns True
 example : True := by trivial
 
-/-! # Section 7 : Scénarios d'attaque -/
+/-! # Section 7: Attack scenarios -/
 
 theorem scenario_double_spending_impossible (cu : CompteUtilisateur) (h_pos : 0 < cu.wallet_V) :
   let tx1 : Transaction := { montant := cu.wallet_V * 0.8, signature := ⟨"sig1"⟩, timestamp := 1000, h_montant := by linarith [h_pos] }
