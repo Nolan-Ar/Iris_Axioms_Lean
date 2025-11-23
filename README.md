@@ -276,7 +276,9 @@ Mathlib requires a lot of RAM. If compilation fails:
 
 ## License
 
-[To be defined according to your project]
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+Copyright (c) 2025 Nolan-Ar
 
 ## Contact
 
