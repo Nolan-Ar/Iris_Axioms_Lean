@@ -1,5 +1,7 @@
 # IRIS Axioms - Formal Verification in Lean 4
 
+*[English](README.md) | [Français](README_FR.md)*
+
 Mathematical formalization of IRIS (Integrated Resource Information System) axioms in Lean 4, with verified proofs of consistency and economic properties.
 
 ## Description
