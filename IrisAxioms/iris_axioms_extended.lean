@@ -181,10 +181,10 @@ In a full implementation, this would be defined as:
   ValidSig cu tx := verify_signature cu.vc tx.signature tx.montant
 where verify_signature implements actual cryptographic verification.
 
-For the formal model, we keep it abstract (as a constant) to preserve
+For the formal model, we keep it abstract (as an axiom) to preserve
 the meaningful content of A3 as a security guarantee.
 -/
-constant ValidSig : CompteUtilisateur → Transaction → Prop
+axiom ValidSig : CompteUtilisateur → Transaction → Prop
 
 /-! # Section 2: ORIGINAL AXIOMS (A1-A12) -/
 
