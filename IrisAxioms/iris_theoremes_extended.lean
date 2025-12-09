@@ -55,8 +55,7 @@ theorem contrat_clos :
     exact A12_distribution_RU U_t beneficiaires alloc h_pos
   · -- Positivity of V and D
     intro v
-    have h := A10_conservation_thermodynamique v.V v.D
-    exact h
+    exact T_conservation_thermodynamique_valeurs v
 
 /-! # Section 2: CONSERVATION THEOREMS (T1-T2) -/
 
@@ -296,21 +295,16 @@ theorem T14_thermometre_bien_defini (rad : RAD) :
   rfl
 
 /-! ## T15: η remains in [0.5, 2.0]
-  Source: Axiom A20
+  Source: RAD structure definition
 
-  A20 provides both adjustment rules and the bound 0.5 ≤ η_apres ≤ 2.0.
+  The η coefficient is always bounded by construction in the RAD structure.
+  This replaces the previous proof using A20, which now only describes
+  the adjustment dynamics.
 -/
-
-theorem T15_eta_borne
-    (r_t η_avant η_apres : ℝ)
-    (h_ajust :
-      (r_t > 1.15 → η_apres < η_avant) ∧
-      (r_t < 0.85 → η_apres > η_avant) ∧
-      0.5 ≤ η_apres ∧ η_apres ≤ 2.0) :
-    0.5 ≤ η_apres ∧ η_apres ≤ 2.0 := by
-  -- We explicitly extract the conjunction of bounds
-  obtain ⟨h1, h2, h3, h4⟩ := h_ajust
-  exact ⟨h3, h4⟩
+theorem T15_eta_borne (rad : RAD) :
+    0.5 ≤ rad.eta ∧ rad.eta ≤ 2.0 := by
+  -- Directly from h_eta field in RAD structure
+  exact rad.h_eta
 
 /-! ## T16: Forced circulation of treasury
 
@@ -359,9 +353,7 @@ theorem T18_compatibilite_ascendante :
   · intro cu tx
     exact A3_inviolabilite_transactions cu tx
   · intro v
-    have h := A10_conservation_thermodynamique v.V v.D
-    -- We only project V and D
-    exact h
+    exact T_conservation_thermodynamique_valeurs v
 
 /-! ## T19: Global coherence of quantities
 

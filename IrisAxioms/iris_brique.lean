@@ -34,7 +34,7 @@ theorem contrat_clos :
   · intro U_t beneficiaires alloc h_pos
     exact A12_distribution_RU U_t beneficiaires alloc h_pos
   · intro v
-    exact A10_conservation_thermodynamique v.V v.D
+    exact T_conservation_thermodynamique_valeurs v
 
 /-- Transactions are always valid and signed. -/
 theorem transactions_toujours_valides :
@@ -79,9 +79,9 @@ theorem contrat_clos_etendu :
   · exact A12_distribution_RU
   constructor
   · intro v
-    exact A10_conservation_thermodynamique v.V v.D
+    exact T_conservation_thermodynamique_valeurs v
   constructor
   · exact A2_absence_emission_dette
-  · exact A4_exclusion_U_entreprise
+  · exact T_exclusion_U_entreprise
 
 end IrisTheoremes
