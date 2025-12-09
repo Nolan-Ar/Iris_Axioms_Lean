@@ -171,10 +171,20 @@ structure SystemState where
   h_V_on : 0 ≤ V_on
   h_V_immo : 0 ≤ V_immo
 
-/-! ## Signature predicate (unchanged) -/
+/-! ## Signature predicate
 
-def ValidSig (_cu : CompteUtilisateur) (_tx : Transaction) : Prop := True
--- ↑ default schema; to be refined with real cryptography
+We model cryptographic signature validation as an abstract predicate.
+This avoids the trivial definition ValidSig := True, which would make
+A3_inviolabilite_transactions a tautology.
+
+In a full implementation, this would be defined as:
+  ValidSig cu tx := verify_signature cu.vc tx.signature tx.montant
+where verify_signature implements actual cryptographic verification.
+
+For the formal model, we keep it abstract (as a constant) to preserve
+the meaningful content of A3 as a security guarantee.
+-/
+constant ValidSig : CompteUtilisateur → Transaction → Prop
 
 /-! # Section 2: ORIGINAL AXIOMS (A1-A12) -/
 
@@ -204,9 +214,10 @@ axiom A3_inviolabilite_transactions :
 /-! ## Axiom 2.4: Strict exclusion of U for enterprise accounts
   Source: Ch. 2.3.1
   Enterprises only handle value V, never usage currency U
+
+  REMOVED: This is redundant with h_tresorerie in CompteEntreprise.
+  Now proven as theorem T_exclusion_U_entreprise below.
 -/
-axiom A4_exclusion_U_entreprise (ce : CompteEntreprise) :
-  0 ≤ ce.tresorerie_V
 
 /-! ## Axiom 2.5: Stipulat necessary for all valued NFTs
   Source: Ch. 2.1.3
@@ -256,9 +267,12 @@ axiom A9_mediation_CE_obligatoire (nft_source nft_dest : NFT) (V_creation : ℝ)
 /-! ## Axiom 2.10: Thermodynamic conservation (fundamental quantities ≥ 0)
   Source: Ch. 2.1.5
   Quantities V and D always remain non-negative
+
+  REMOVED: This was previously defined as an axiom on arbitrary reals,
+  which was logically inconsistent (would imply all reals are non-negative).
+  The non-negativity of V and D is already guaranteed by the structure fields
+  (hV, hD in Valeurs, SystemState). This is now proven as a theorem below.
 -/
-axiom A10_conservation_thermodynamique (V_total D_total : ℝ) :
-  0 ≤ V_total ∧ 0 ≤ D_total
 
 /-! ## Axiom 2.11: Organizational continuity
   Source: IRIS Document
@@ -331,11 +345,12 @@ axiom A15_conversion_regulee (V_converti kappa : ℝ) :
   and prevents unproductive accumulation.
 
   Guarantees: U is strictly perishable
+
+  REMOVED: The statement "U_non_depense ≥ 0" is redundant with h_U
+  in WalletEtendu. The real content of A16 (periodic extinction mechanism)
+  would require modeling time/cycles explicitly, which is not yet formalized.
+  The non-negativity is proven as theorem T_extinction_U_non_neg below.
 -/
-axiom A16_extinction_U (wallet : WalletEtendu) (cycle : ℕ) :
-  let U_non_depense := wallet.U_actuel
-  -- At end of cycle, unspent U is destroyed
-  U_non_depense ≥ 0
 
 /-! # Section 5: NEW AXIOMS - Stacking (A17-A18) -/
 
@@ -381,11 +396,12 @@ axiom A18_transfert_engagement
   - r_t < 0.85: cold system (under-investment)
   - 0.85 ≤ r_t ≤ 1.15: healthy equilibrium
   - r_t > 1.15: overheated system
+
+  REMOVED: The original statement had form "... → True" which is trivially
+  provable and adds no information. The meaningful content (that equilibrium
+  tends toward the healthy zone) is better expressed as a property of
+  system dynamics, not as an axiom. See theorem T3_thermometre_equilibre.
 -/
-axiom A19_thermometre_borne (rad : RAD) :
-  let r_t := thermometre rad
-  -- In stable state, thermometer tends toward [0.85, 1.15]
-  0.85 ≤ r_t ∧ r_t ≤ 1.15 → True
 
 /-! ## Axiom 6.2 (A20): Automatic adjustment of η
   Source: Ch. 2.3.4 - "Self-regulation mechanism"
@@ -398,11 +414,15 @@ axiom A19_thermometre_borne (rad : RAD) :
   - If r_t < 0.85 (lethargy) → η increases (stimulates creation)
 
   Guarantees: Automatic countercyclical regulation
+
+  Note: This axiom now properly links to the RAD structure rather than
+  quantifying over arbitrary reals. The adjustment rules describe how
+  the system transitions from one RAD state to another.
 -/
-axiom A20_ajustement_eta (r_t η_avant η_apres : ℝ) :
-  (r_t > 1.15 → η_apres < η_avant) ∧
-  (r_t < 0.85 → η_apres > η_avant) ∧
-  (0.5 ≤ η_apres ∧ η_apres ≤ 2.0)
+axiom A20_ajustement_eta (rad_before rad_after : RAD) :
+  let r_t := thermometre rad_before
+  (r_t > 1.15 → rad_after.eta < rad_before.eta) ∧
+  (r_t < 0.85 → rad_after.eta > rad_before.eta)
 
 /-! # Section 7: NEW AXIOMS - Enterprise Account and TAP (A21-A22) -/
 
@@ -515,6 +535,45 @@ axiom A26_cycle_nft_productif (nft : NFT) :
 axiom A27_conservation_patrimoine (sys : SystemState) :
   sys.V_total = sys.V_on + sys.V_immo
 
+/-!
+# Theorems (derived from structures, replacing redundant axioms)
+-/
+
+/-- Thermodynamic conservation for Valeurs:
+    V and D are always non-negative by construction.
+    Replaces the inconsistent A10 axiom.
+-/
+theorem T_conservation_thermodynamique_valeurs (v : Valeurs) :
+    0 ≤ v.V ∧ 0 ≤ v.D :=
+  ⟨v.hV, v.hD⟩
+
+/-- Thermodynamic conservation for SystemState:
+    V_total and D_total are always non-negative by construction.
+-/
+theorem T_conservation_thermodynamique_systeme (sys : SystemState) :
+    0 ≤ sys.V_total ∧ 0 ≤ sys.D_total :=
+  ⟨sys.h_V, sys.h_D⟩
+
+/-- Enterprise accounts only have V treasury (never negative).
+    Replaces the redundant A4 axiom.
+-/
+theorem T_exclusion_U_entreprise (ce : CompteEntreprise) :
+    0 ≤ ce.tresorerie_V :=
+  ce.h_tresorerie
+
+/-- Extended enterprise accounts have non-negative treasury.
+-/
+theorem T_exclusion_U_entreprise_etendu (ce : CompteEntrepriseEtendu) :
+    0 ≤ ce.tresorerie_V :=
+  ce.h_tresorerie
+
+/-- Unspent U in a wallet is non-negative by construction.
+    Replaces the redundant statement in A16.
+-/
+theorem T_extinction_U_non_neg (wallet : WalletEtendu) :
+    0 ≤ wallet.U_actuel :=
+  wallet.h_U
+
 end IrisAxiomsExtended
 
 /-! # Sanity checks -/
@@ -522,13 +581,13 @@ end IrisAxiomsExtended
 #check IrisAxiomsExtended.A1_unicite_bijective
 #check IrisAxiomsExtended.A2_absence_emission_dette
 #check IrisAxiomsExtended.A3_inviolabilite_transactions
-#check IrisAxiomsExtended.A4_exclusion_U_entreprise
+-- A4 removed (now theorem T_exclusion_U_entreprise)
 #check IrisAxiomsExtended.A5_necessite_stipulat
 #check IrisAxiomsExtended.A6_creation_valeur_energetique
 #check IrisAxiomsExtended.A7_absence_interets
 #check IrisAxiomsExtended.A8_genealogie_complete
 #check IrisAxiomsExtended.A9_mediation_CE_obligatoire
-#check IrisAxiomsExtended.A10_conservation_thermodynamique
+-- A10 removed (now theorems T_conservation_thermodynamique_*)
 #check IrisAxiomsExtended.A11_survie_organisationnelle
 #check IrisAxiomsExtended.A12_distribution_RU
 
@@ -536,10 +595,10 @@ end IrisAxiomsExtended
 #check IrisAxiomsExtended.A13_neutralite_initiale
 #check IrisAxiomsExtended.A14_unicite_biens
 #check IrisAxiomsExtended.A15_conversion_regulee
-#check IrisAxiomsExtended.A16_extinction_U
+-- A16 removed (now theorem T_extinction_U_non_neg)
 #check IrisAxiomsExtended.A17_stacking_neutre
 #check IrisAxiomsExtended.A18_transfert_engagement
-#check IrisAxiomsExtended.A19_thermometre_borne
+-- A19 removed (was tautological)
 #check IrisAxiomsExtended.A20_ajustement_eta
 #check IrisAxiomsExtended.A21_capacite_TAP
 #check IrisAxiomsExtended.A22_distribution_organique
@@ -548,3 +607,10 @@ end IrisAxiomsExtended
 #check IrisAxiomsExtended.A25_limite_retention
 #check IrisAxiomsExtended.A26_cycle_nft_productif
 #check IrisAxiomsExtended.A27_conservation_patrimoine
+
+-- New theorems (replacing redundant axioms)
+#check IrisAxiomsExtended.T_conservation_thermodynamique_valeurs
+#check IrisAxiomsExtended.T_conservation_thermodynamique_systeme
+#check IrisAxiomsExtended.T_exclusion_U_entreprise
+#check IrisAxiomsExtended.T_exclusion_U_entreprise_etendu
+#check IrisAxiomsExtended.T_extinction_U_non_neg

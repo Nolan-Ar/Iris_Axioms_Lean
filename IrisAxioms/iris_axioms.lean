@@ -63,9 +63,19 @@ structure Transaction where
 
 /-!
 # Signature Predicate
+
+We model cryptographic signature validation as an abstract predicate.
+This avoids the trivial definition ValidSig := True, which would make
+A3_inviolabilite_transactions a tautology.
+
+In a full implementation, this would be defined as:
+  ValidSig cu tx := verify_signature cu.vc tx.signature tx.montant
+where verify_signature implements actual cryptographic verification.
+
+For the formal model, we keep it abstract (as a constant) to preserve
+the meaningful content of A3 as a security guarantee.
 -/
-def ValidSig (_cu : CompteUtilisateur) (_tx : Transaction) : Prop := True
--- ↑ default schema; to be refined if needed (cryptography)
+constant ValidSig : CompteUtilisateur → Transaction → Prop
 
 /-!
 # IRIS AXIOMS
@@ -89,8 +99,8 @@ axiom A3_inviolabilite_transactions :
   ∀ (cu : CompteUtilisateur) (tx : Transaction), ValidSig cu tx
 
 -- Axiom 2.4: Strict exclusion of U for enterprise accounts
-axiom A4_exclusion_U_entreprise (ce : CompteEntreprise) :
-  0 ≤ ce.tresorerie_V   -- no U balance on enterprise side
+-- REMOVED: This is redundant with the h_tresorerie field of CompteEntreprise.
+-- Now proven as theorem T_exclusion_U_entreprise below.
 
 -- Axiom 2.5: Stipulat necessary for all valued NFTs
 axiom A5_necessite_stipulat (nft : NFT) :
@@ -124,8 +134,14 @@ axiom A9_mediation_CE_obligatoire (nft_source nft_dest : NFT) (V_creation : ℝ)
   ∃ ce : CompteEntreprise, ce.tresorerie_V ≥ V_creation
 
 -- Axiom 2.10: Thermodynamic conservation (fundamental quantities ≥ 0)
-axiom A10_conservation_thermodynamique (V_total D_total : ℝ) :
-  0 ≤ V_total ∧ 0 ≤ D_total
+-- REMOVED: This was previously defined as an axiom on arbitrary reals,
+-- which was logically inconsistent (would imply all reals are non-negative).
+-- The non-negativity of V and D is already guaranteed by the structure fields
+-- (hV, hD in Valeurs). This is now proven as a theorem below.
+--
+-- For system-level conservation, we rely on the fact that any legitimate
+-- economic quantities (V_total, D_total) come from aggregations of structured
+-- data with built-in non-negativity invariants.
 
 -- Axiom 2.11: Organizational continuity
 axiom A11_survie_organisationnelle (ce : CompteEntreprise) :
@@ -141,6 +157,25 @@ axiom A12_distribution_RU
   (∀ cu ∈ beneficiaires, 0 ≤ alloc cu) →
   (beneficiaires.attach.map (fun ⟨cu,_⟩ => alloc cu)).sum = U_t
 
+/-!
+# Theorems (derived from structures)
+-/
+
+/-- Thermodynamic conservation for Valeurs:
+    V and D are always non-negative by construction.
+    This replaces the previous axiom A10 which was inconsistent.
+-/
+theorem T_conservation_thermodynamique_valeurs (v : Valeurs) :
+    0 ≤ v.V ∧ 0 ≤ v.D :=
+  ⟨v.hV, v.hD⟩
+
+/-- Enterprise accounts only have V treasury (never negative).
+    This makes A4 a theorem rather than an axiom.
+-/
+theorem T_exclusion_U_entreprise (ce : CompteEntreprise) :
+    0 ≤ ce.tresorerie_V :=
+  ce.h_tresorerie
+
 end IrisAxioms
 
 /-!
@@ -149,12 +184,13 @@ end IrisAxioms
 #check IrisAxioms.A1_unicite_bijective
 #check IrisAxioms.A2_absence_emission_dette
 #check IrisAxioms.A3_inviolabilite_transactions
-#check IrisAxioms.A4_exclusion_U_entreprise
 #check IrisAxioms.A5_necessite_stipulat
 #check IrisAxioms.A6_creation_valeur_energetique
 #check IrisAxioms.A7_absence_interets
 #check IrisAxioms.A8_genealogie_complete
 #check IrisAxioms.A9_mediation_CE_obligatoire
-#check IrisAxioms.A10_conservation_thermodynamique
 #check IrisAxioms.A11_survie_organisationnelle
 #check IrisAxioms.A12_distribution_RU
+-- Removed A4 and A10 (now theorems)
+#check IrisAxioms.T_conservation_thermodynamique_valeurs
+#check IrisAxioms.T_exclusion_U_entreprise
