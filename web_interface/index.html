@@ -262,13 +262,13 @@
 <body>
     <div class="container">
         <header>
-            <h1>🌐 IRIS Economic Simulator</h1>
+            <h1>IRIS Economic Simulator</h1>
             <p>Simulateur interactif du système thermodynamique économique IRIS</p>
         </header>
 
         <div class="main-content">
             <div class="controls">
-                <h2>⚙️ Paramètres économiques</h2>
+                <h2>Paramètres économiques</h2>
 
                 <div class="slider-group">
                     <label for="D_total">
@@ -310,7 +310,7 @@
                     <input type="range" id="kappa" min="0.1" max="1.0" step="0.05" value="0.8">
                 </div>
 
-                <button class="btn-simulate" onclick="simulate()">🚀 Lancer la simulation</button>
+                <button class="btn-simulate" onclick="simulate()">Lancer la simulation</button>
             </div>
 
             <div class="results">
@@ -326,19 +326,19 @@
                 </div>
 
                 <div id="axiomStatus">
-                    <h3>✅ Axiomes vérifiés</h3>
+                    <h3>Axiomes vérifiés</h3>
                     <ul>
-                        <li><strong>A1</strong> : Conservation monétaire (S + U + V + D = 0) ✔️</li>
-                        <li><strong>A6</strong> : Création de valeur énergétique (ΔV = η × ψ × E) ✔️</li>
-                        <li><strong>A12</strong> : Distribution du Revenu Universel ✔️</li>
-                        <li><strong>A19</strong> : Thermomètre économique (r_t = D/V_on) ✔️</li>
-                        <li><strong>A20</strong> : Régulation automatique de η ✔️</li>
+                        <li><strong>A1</strong> : Conservation monétaire (S + U + V + D = 0)</li>
+                        <li><strong>A6</strong> : Création de valeur énergétique (ΔV = η × ψ × E)</li>
+                        <li><strong>A12</strong> : Distribution du Revenu Universel</li>
+                        <li><strong>A19</strong> : Thermomètre économique (r_t = D/V_on)</li>
+                        <li><strong>A20</strong> : Régulation automatique de η</li>
                     </ul>
                 </div>
             </div>
 
             <div class="explanations">
-                <h3>📚 Explications des concepts</h3>
+                <h3>Explications des concepts</h3>
                 <div class="concepts-grid">
                     <div class="concept">
                         <strong>η = η_phys × μ_social</strong>
@@ -404,19 +404,19 @@
                 return {
                     zone: 'FROID',
                     class: 'zone-cold',
-                    recommendation: '❄️ Système en déflation → Augmenter η pour créer plus de valeur'
+                    recommendation: 'Système en déflation → Augmenter η pour créer plus de valeur'
                 };
             } else if (r_t <= 1.15) {
                 return {
                     zone: 'ÉQUILIBRE',
                     class: 'zone-equilibrium',
-                    recommendation: '✅ Système stable → Maintenir η constant'
+                    recommendation: 'Système stable → Maintenir η constant'
                 };
             } else {
                 return {
                     zone: 'CHAUD',
                     class: 'zone-hot',
-                    recommendation: '🔥 Système en inflation → Réduire η pour limiter la création'
+                    recommendation: 'Système en inflation → Réduire η pour limiter la création'
                 };
             }
         }
