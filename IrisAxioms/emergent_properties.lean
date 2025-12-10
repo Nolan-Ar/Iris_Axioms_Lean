@@ -141,8 +141,7 @@ theorem no_free_lunch (η ψ : ℝ) (h_η : 0 < η ∧ η ≤ 2) (h_ψ : 0 < ψ 
     let ΔV := η * ψ * E
     ΔV = 0 := by
   intro E ΔV
-  rw [mul_zero]
-  rw [mul_zero]
+  simp
 
 /-- Positive value requires positive energy -/
 axiom positive_value_needs_energy (η ψ E : ℝ)
