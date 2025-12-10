@@ -9,21 +9,101 @@ namespace IrisTheoremesExtended
 
 set_option linter.unusedVariables false
 
-/-
-  IRIS — Extended Theorems
+/-!
+# IRIS — Extended Theorems
 
-  This file contains the original theorems and 15+ new theorems
-  derived from the extended axioms A1-A27.
+This file contains the original theorems and 15+ new theorems
+derived from the extended axioms A1-A27.
 
-  Organization:
-  - Section 1: Original theorems (closed contract, etc.)
-  - Section 2: Conservation Theorems (T1-T2)
-  - Section 3: Stability Theorems (T3-T4)
-  - Section 4: Equity Theorems (T5-T6)
-  - Section 5: Security Theorems (T7-T8)
-  - Section 6: Resilience Theorems (T9-T10)
-  - Section 7: Circulation Theorems (T11-T13)
-  - Section 8: Thermodynamic Theorems (T14-T16)
+## Organization:
+- Section 1: Original theorems (closed contract, etc.)
+- Section 2: Conservation Theorems (T1-T2)
+- Section 3: Stability Theorems (T3-T4)
+- Section 4: Equity Theorems (T5-T6)
+- Section 5: Security Theorems (T7-T8)
+- Section 6: Resilience Theorems (T9-T10)
+- Section 7: Circulation Theorems (T11-T13)
+- Section 8: Thermodynamic Theorems (T14-T16)
+
+## Proof Strategies Documentation
+
+This section explains the main proof techniques used throughout the file.
+
+### 1. Direct Axiom Application
+**Pattern**: Directly apply an axiom to prove the goal
+**Example**: `T1_conservation_globale_init` uses `A13_neutralite_initiale`
+**When to use**: Goal matches exactly an axiom conclusion
+
+### 2. Constructive Existence Proofs
+**Pattern**: Construct explicit witness to prove `∃ x, P(x)`
+**Example**: `T4_etat_stationnaire_possible` constructs a SystemState
+**Tactics used**: `refine ⟨witness, ?_, ?_⟩`, `simpa`
+**When to use**: Need to show existence by example
+
+### 3. Inequality Chains with `linarith`
+**Pattern**: Prove inequalities using linear arithmetic
+**Example**: Conservation proofs that manipulate bounds
+**Tactics used**: `linarith`, `calc`, `norm_num`
+**When to use**: Dealing with numeric constraints, bounds
+
+### 4. Case Analysis
+**Pattern**: Split proof by cases on a condition
+**Example**: Checking thermometer zones (cold/equilibrium/hot)
+**Tactics used**: `by_cases`, `rcases`, `cases`
+**When to use**: Proof depends on different scenarios
+
+### 5. Contradiction Proofs
+**Pattern**: Assume negation and derive false
+**Example**: Proving no double-spend by contradiction
+**Tactics used**: `by_contra`, `intro`, `linarith`
+**When to use**: Easier to show impossibility than direct proof
+
+### 6. Ring/Field Normalization
+**Pattern**: Simplify algebraic expressions
+**Example**: Proving conservation equations hold
+**Tactics used**: `ring`, `ring_nf`, `field_simp`
+**When to use**: Goals involve polynomial/rational expressions
+
+### 7. Structural Decomposition
+**Pattern**: Break down compound structures
+**Example**: Extract components from CompteUtilisateur
+**Tactics used**: `rcases`, `obtain`, `have`
+**When to use**: Working with complex data structures
+
+### 8. Substitution and Rewriting
+**Pattern**: Replace equal terms using hypotheses
+**Example**: Using conservation to substitute values
+**Tactics used**: `rw`, `subst`, `simp [hyp]`
+**When to use**: Need to use equalities to transform goal
+
+## Common Proof Patterns in IRIS
+
+### Pattern 1: Positivity from Structure Invariants
+```lean
+theorem value_positive (v : Valeurs) : 0 ≤ v.V := v.hV
+-- Direct use of structure invariant hV
+```
+
+### Pattern 2: Conservation Manipulation
+```lean
+-- Start with: S + U + V + D = 0
+-- Derive: V = -(S + U + D)
+-- Technique: Algebraic manipulation + linarith
+```
+
+### Pattern 3: Thermometer Zone Checking
+```lean
+-- Check: r_t = D_total / V_on_total
+-- Compare with thresholds: 0.85, 1.15
+-- Technique: unfold thermometre, norm_num
+```
+
+### Pattern 4: List Sum Properties
+```lean
+-- For UBI distribution: (beneficiaires.map alloc).sum = U_t
+-- Technique: Use A12 axiom directly
+```
+
 -/
 
 /-! # Section 1: ORIGINAL THEOREMS (REMINDER)
@@ -111,34 +191,61 @@ theorem T3_thermometre_equilibre (rad : RAD)
 
 /-! ## T4: Existence of a stationary state
 
-  There exists a system state where:
-  - V_total ≥ 0
-  - D_total ≥ 0
-  - V_total = V_on + V_immo
+  **PROOF STRATEGY**: Constructive existence proof
+
+  **Goal**: Prove ∃ sys : SystemState, [properties hold]
+
+  **Approach**:
+  1. Construct explicit witness (concrete SystemState)
+  2. Verify each property holds for the witness
+  3. Use `refine ⟨witness, proof1, proof2, proof3⟩` pattern
+
+  **Key insight**: Rather than prove abstract existence,
+  we show a realistic example satisfying all constraints.
+
+  Properties to verify:
+  - V_total ≥ 0 (economic value is non-negative)
+  - D_total ≥ 0 (debt is non-negative)
+  - V_total = V_on + V_immo (A2 decomposition)
 -/
 theorem T4_etat_stationnaire_possible :
     ∃ sys : SystemState, sys.V_total ≥ 0 ∧ sys.D_total ≥ 0 ∧ sys.V_total = sys.V_on + sys.V_immo := by
-  -- We construct a non-trivial state with realistic values
+  -- STEP 1: Construct a concrete witness
+  -- We create a realistic economic state:
+  --   - 1M total value (V_total)
+  --   - 1M corresponding debt (D_total) - thermodynamic mirror
+  --   - 700k circulating (V_on) - 70% liquidity
+  --   - 300k immobilized (V_immo) - 30% in patrimony
   let sys : SystemState :=
-    { utilisateurs := []
-      entreprises := []
-      V_total := 1000000  -- 1M initial value
-      D_total := 1000000  -- Corresponding liability
-      V_on := 700000      -- 70% in circulation
-      V_immo := 300000    -- 30% immobilized
-      cycle_actuel := 42
-      h_conservation := by norm_num
-      h_V := by norm_num
-      h_D := by norm_num
-      h_V_on := by norm_num
-      h_V_immo := by norm_num }
+    { utilisateurs := []         -- Empty for simplicity (not needed for this proof)
+      entreprises := []          -- Empty for simplicity
+      V_total := 1000000         -- 1M€ total value
+      D_total := 1000000         -- Mirrors V_total in equilibrium
+      V_on := 700000             -- 700k€ in circulation
+      V_immo := 300000           -- 300k€ immobilized (V_on + V_immo = V_total)
+      cycle_actuel := 42         -- Arbitrary cycle number
+      h_conservation := by norm_num  -- Verify 1000000 = 700000 + 300000
+      h_V := by norm_num         -- Verify 0 ≤ 1000000
+      h_D := by norm_num         -- Verify 0 ≤ 1000000
+      h_V_on := by norm_num      -- Verify 0 ≤ 700000
+      h_V_immo := by norm_num }  -- Verify 0 ≤ 300000
+
+  -- STEP 2: Prove the witness satisfies all three properties
+  -- Using `refine` to provide witness and create three subgoals
   refine ⟨sys, ?_, ?_, ?_⟩
-  · -- V_total ≥ 0
-    simpa using sys.h_V
-  · -- D_total ≥ 0
-    simpa using sys.h_D
-  · -- V_total = V_on + V_immo
-    simpa using sys.h_conservation
+
+  -- Subgoal 1: V_total ≥ 0
+  -- TECHNIQUE: Use structure invariant sys.h_V
+  · simpa using sys.h_V
+
+  -- Subgoal 2: D_total ≥ 0
+  -- TECHNIQUE: Use structure invariant sys.h_D
+  · simpa using sys.h_D
+
+  -- Subgoal 3: V_total = V_on + V_immo
+  -- TECHNIQUE: Use conservation property sys.h_conservation
+  -- This was verified at construction time via norm_num
+  · simpa using sys.h_conservation
 
 /-! # Section 4: EQUITY THEOREMS (T5-T6) -/
 

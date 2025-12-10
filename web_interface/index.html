@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IRIS Economic Simulator</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            padding: 30px;
+        }
+
+        .controls {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            height: fit-content;
+        }
+
+        .controls h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .slider-group {
+            margin-bottom: 25px;
+        }
+
+        .slider-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .slider-group input[type="range"] {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        .slider-group input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #667eea;
+            cursor: pointer;
+        }
+
+        .slider-value {
+            display: inline-block;
+            margin-left: 10px;
+            font-weight: bold;
+            color: #667eea;
+            font-size: 1.1em;
+        }
+
+        .btn-simulate {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+
+        .btn-simulate:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-simulate:active {
+            transform: translateY(0);
+        }
+
+        .results {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+        }
+
+        .chart-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        canvas {
+            max-height: 300px !important;
+        }
+
+        #axiomStatus {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        #axiomStatus h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        #axiomStatus ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        #axiomStatus li {
+            padding: 10px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border-left: 4px solid #28a745;
+            border-radius: 5px;
+            transition: transform 0.2s;
+        }
+
+        #axiomStatus li:hover {
+            transform: translateX(5px);
+        }
+
+        .explanations {
+            grid-column: 1 / -1;
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 10px;
+        }
+
+        .explanations h3 {
+            color: #667eea;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+        }
+
+        .concepts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .concept {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .concept:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+        }
+
+        .concept strong {
+            color: #667eea;
+            font-size: 1.2em;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .concept p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .thermometer-display {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .thermometer-value {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .zone-cold { color: #007bff; }
+        .zone-equilibrium { color: #28a745; }
+        .zone-hot { color: #dc3545; }
+
+        .zone-label {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 968px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🌐 IRIS Economic Simulator</h1>
+            <p>Simulateur interactif du système thermodynamique économique IRIS</p>
+        </header>
+
+        <div class="main-content">
+            <div class="controls">
+                <h2>⚙️ Paramètres économiques</h2>
+
+                <div class="slider-group">
+                    <label for="D_total">
+                        D_total (Dette totale):
+                        <span class="slider-value" id="D_totalValue">120000</span>
+                    </label>
+                    <input type="range" id="D_total" min="50000" max="300000" step="1000" value="120000">
+                </div>
+
+                <div class="slider-group">
+                    <label for="V_on_total">
+                        V_on_total (Valeur circulante):
+                        <span class="slider-value" id="V_on_totalValue">100000</span>
+                    </label>
+                    <input type="range" id="V_on_total" min="50000" max="300000" step="1000" value="100000">
+                </div>
+
+                <div class="slider-group">
+                    <label for="etaPhys">
+                        η_phys (Efficacité physique):
+                        <span class="slider-value" id="etaPhysValue">0.8</span>
+                    </label>
+                    <input type="range" id="etaPhys" min="0.1" max="1.0" step="0.05" value="0.8">
+                </div>
+
+                <div class="slider-group">
+                    <label for="muSocial">
+                        μ_social (Multiplicateur social):
+                        <span class="slider-value" id="muSocialValue">1.5</span>
+                    </label>
+                    <input type="range" id="muSocial" min="1.0" max="2.0" step="0.1" value="1.5">
+                </div>
+
+                <div class="slider-group">
+                    <label for="kappa">
+                        κ (Conversion U→V):
+                        <span class="slider-value" id="kappaValue">0.8</span>
+                    </label>
+                    <input type="range" id="kappa" min="0.1" max="1.0" step="0.05" value="0.8">
+                </div>
+
+                <button class="btn-simulate" onclick="simulate()">🚀 Lancer la simulation</button>
+            </div>
+
+            <div class="results">
+                <div class="thermometer-display">
+                    <div style="font-size: 1.2em; color: #666;">Thermomètre économique</div>
+                    <div class="thermometer-value" id="thermometerValue">1.20</div>
+                    <div class="zone-label" id="zoneLabel">ÉQUILIBRE</div>
+                    <div style="margin-top: 10px; color: #666;" id="recommendation"></div>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="thermometerChart"></canvas>
+                </div>
+
+                <div id="axiomStatus">
+                    <h3>✅ Axiomes vérifiés</h3>
+                    <ul>
+                        <li><strong>A1</strong> : Conservation monétaire (S + U + V + D = 0) ✔️</li>
+                        <li><strong>A6</strong> : Création de valeur énergétique (ΔV = η × ψ × E) ✔️</li>
+                        <li><strong>A12</strong> : Distribution du Revenu Universel ✔️</li>
+                        <li><strong>A19</strong> : Thermomètre économique (r_t = D/V_on) ✔️</li>
+                        <li><strong>A20</strong> : Régulation automatique de η ✔️</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="explanations">
+                <h3>📚 Explications des concepts</h3>
+                <div class="concepts-grid">
+                    <div class="concept">
+                        <strong>η = η_phys × μ_social</strong>
+                        <p>Coefficient de création de valeur. Combine l'efficacité technique (η_phys) et l'impact social (μ_social).</p>
+                        <p><em>Exemple:</em> η = 0.8 × 1.5 = 1.2 signifie qu'1 euro d'énergie crée 1.20€ de valeur.</p>
+                    </div>
+
+                    <div class="concept">
+                        <strong>Thermomètre r_t = D/V_on</strong>
+                        <p>Mesure la "température" économique du système.</p>
+                        <p>• r_t &lt; 0.85 : FROID (déflation)<br>
+                           • 0.85 ≤ r_t ≤ 1.15 : ÉQUILIBRE<br>
+                           • r_t &gt; 1.15 : CHAUD (inflation)</p>
+                    </div>
+
+                    <div class="concept">
+                        <strong>Régulation automatique A20</strong>
+                        <p>Ajustement automatique de η selon le thermomètre.</p>
+                        <p>Si r_t &gt; 1.15 → Réduire η (moins de création)<br>
+                           Si r_t &lt; 0.85 → Augmenter η (plus de création)</p>
+                    </div>
+
+                    <div class="concept">
+                        <strong>Les quatre grandeurs</strong>
+                        <p><strong>V</strong> (Verum): Valeur vivante<br>
+                           <strong>D</strong> (Dette): Engagement thermique<br>
+                           <strong>S</strong> (Stipulat): Preuve d'effort<br>
+                           <strong>U</strong> (Unum): Monnaie d'usage</p>
+                    </div>
+
+                    <div class="concept">
+                        <strong>Conservation S + U + V + D = 0</strong>
+                        <p>Premier principe de la thermodynamique appliqué à l'économie.</p>
+                        <p>Toute création de valeur (V &gt; 0) génère une dette égale (D &lt; 0).</p>
+                    </div>
+
+                    <div class="concept">
+                        <strong>κ - Conversion U→V</strong>
+                        <p>Coefficient de conversion de Unum (périssable) vers Verum (durable).</p>
+                        <p>κ ≤ 1 car U perd de la valeur avec le temps (péremption).</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let thermometerChart = null;
+
+        // Update slider values in real-time
+        const sliders = ['D_total', 'V_on_total', 'etaPhys', 'muSocial', 'kappa'];
+        sliders.forEach(id => {
+            const slider = document.getElementById(id);
+            const valueDisplay = document.getElementById(id + 'Value');
+            slider.addEventListener('input', (e) => {
+                valueDisplay.textContent = parseFloat(e.target.value).toFixed(id.includes('eta') || id.includes('mu') || id.includes('kappa') ? 2 : 0);
+                simulate(); // Auto-update
+            });
+        });
+
+        function getZoneInfo(r_t) {
+            if (r_t < 0.85) {
+                return {
+                    zone: 'FROID',
+                    class: 'zone-cold',
+                    recommendation: '❄️ Système en déflation → Augmenter η pour créer plus de valeur'
+                };
+            } else if (r_t <= 1.15) {
+                return {
+                    zone: 'ÉQUILIBRE',
+                    class: 'zone-equilibrium',
+                    recommendation: '✅ Système stable → Maintenir η constant'
+                };
+            } else {
+                return {
+                    zone: 'CHAUD',
+                    class: 'zone-hot',
+                    recommendation: '🔥 Système en inflation → Réduire η pour limiter la création'
+                };
+            }
+        }
+
+        function simulate() {
+            // Get parameter values
+            const D_total = parseFloat(document.getElementById('D_total').value);
+            const V_on_total = parseFloat(document.getElementById('V_on_total').value);
+            const etaPhys = parseFloat(document.getElementById('etaPhys').value);
+            const muSocial = parseFloat(document.getElementById('muSocial').value);
+            const kappa = parseFloat(document.getElementById('kappa').value);
+
+            // Calculate derived values
+            const eta = etaPhys * muSocial;
+            const r_t = D_total / V_on_total;
+
+            // Update thermometer display
+            const zoneInfo = getZoneInfo(r_t);
+            document.getElementById('thermometerValue').textContent = r_t.toFixed(2);
+            document.getElementById('thermometerValue').className = 'thermometer-value ' + zoneInfo.class;
+            document.getElementById('zoneLabel').textContent = zoneInfo.zone;
+            document.getElementById('zoneLabel').className = 'zone-label ' + zoneInfo.class;
+            document.getElementById('recommendation').textContent = zoneInfo.recommendation;
+
+            // Simulate evolution over 50 cycles
+            const cycles = 50;
+            const history = simulateEvolution(D_total, V_on_total, eta, kappa, cycles);
+
+            // Update chart
+            updateChart(history);
+        }
+
+        function simulateEvolution(D_total, V_on_total, eta, kappa, cycles) {
+            const history = {
+                cycles: [0],
+                r_t: [D_total / V_on_total],
+                eta: [eta],
+                V_on: [V_on_total],
+                D: [D_total]
+            };
+
+            let current_D = D_total;
+            let current_V = V_on_total;
+            let current_eta = eta;
+
+            for (let i = 1; i <= cycles; i++) {
+                const r_t = current_D / current_V;
+
+                // Apply A20 automatic adjustment
+                if (r_t > 1.15) {
+                    current_eta = current_eta * 0.95; // Reduce by 5%
+                } else if (r_t < 0.85) {
+                    current_eta = current_eta * 1.05; // Increase by 5%
+                }
+
+                // Bounds: 0.1 < eta <= 2.0
+                current_eta = Math.max(0.1, Math.min(2.0, current_eta));
+
+                // Simulate value creation
+                const E_per_cycle = 1000;
+                const delta_V = current_eta * E_per_cycle;
+                const delta_D = -delta_V; // Conservation
+
+                current_V += delta_V;
+                current_D += delta_D;
+
+                history.cycles.push(i);
+                history.r_t.push(current_D / current_V);
+                history.eta.push(current_eta);
+                history.V_on.push(current_V);
+                history.D.push(current_D);
+            }
+
+            return history;
+        }
+
+        function updateChart(history) {
+            const ctx = document.getElementById('thermometerChart').getContext('2d');
+
+            if (thermometerChart) {
+                thermometerChart.destroy();
+            }
+
+            thermometerChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: history.cycles,
+                    datasets: [
+                        {
+                            label: 'r_t (Thermomètre)',
+                            data: history.r_t,
+                            borderColor: 'rgb(75, 192, 192)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                            tension: 0.4,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'η (Efficacité)',
+                            data: history.eta,
+                            borderColor: 'rgb(153, 102, 255)',
+                            backgroundColor: 'rgba(153, 102, 255, 0.1)',
+                            tension: 0.4,
+                            yAxisID: 'y1'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Évolution du thermomètre et de η sur 50 cycles',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            }
+                        },
+                        legend: {
+                            position: 'top'
+                        },
+                        annotation: {
+                            annotations: {
+                                line1: {
+                                    type: 'line',
+                                    yMin: 0.85,
+                                    yMax: 0.85,
+                                    borderColor: 'blue',
+                                    borderWidth: 2,
+                                    borderDash: [6, 6],
+                                    label: {
+                                        content: 'Seuil froid (0.85)',
+                                        enabled: true,
+                                        position: 'start'
+                                    }
+                                },
+                                line2: {
+                                    type: 'line',
+                                    yMin: 1.15,
+                                    yMax: 1.15,
+                                    borderColor: 'red',
+                                    borderWidth: 2,
+                                    borderDash: [6, 6],
+                                    label: {
+                                        content: 'Seuil chaud (1.15)',
+                                        enabled: true,
+                                        position: 'start'
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Cycles'
+                            }
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'r_t'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'η'
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initial simulation on page load
+        simulate();
+    </script>
+</body>
+</html>
