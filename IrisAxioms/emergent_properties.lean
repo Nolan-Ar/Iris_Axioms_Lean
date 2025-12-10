@@ -236,22 +236,26 @@ axiom A12_distribution_RU :
   0 ≤ U_t →
   (beneficiaires.attach.map (fun ⟨cu, _⟩ => allocation cu)).sum = U_t
 
-/-- Perishability prevents hoarding -/
+/-- Perishability prevents hoarding (requires rho > 0 for decay) -/
 axiom A13_perissabilite_U : ∀ (U_t : ℝ) (rho : ℝ),
-  0 ≤ rho ∧ rho < 1 →
+  0 < rho ∧ rho < 1 →
   let U_next := (1 - rho) * U_t
   U_next < U_t
 
-/-- Combined effect: sustainable circulation -/
+/-- Combined effect: sustainable circulation (requires rho > 0) -/
 theorem ubi_sustainable_circulation (U_t : ℝ) (rho : ℝ)
-    (h_U_pos : 0 < U_t) (h_rho : 0 ≤ rho ∧ rho < 1) :
+    (h_U_pos : 0 < U_t) (h_rho : 0 < rho ∧ rho < 1) :
     let U_next := (1 - rho) * U_t
     0 < U_next ∧ U_next < U_t := by
   intro U_next
   constructor
   · calc U_next = (1 - rho) * U_t := rfl
-      _ > 0 := by apply mul_pos; linarith [h_rho]; exact h_U_pos
-  · exact A13_perissabilite_U U_t rho h_rho
+      _ > 0 := by
+        apply mul_pos
+        · linarith  -- prouve que 1 - rho > 0
+        · exact h_U_pos
+  · dsimp [U_next]
+    nlinarith [h_rho.2, h_U_pos]  -- prouve que (1 - rho) * U_t < U_t
 
 /-!
 ## PROPERTY 10: No Arbitrary Debt Creation
