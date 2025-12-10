@@ -6,7 +6,7 @@
 
 Formalisation mathématique des axiomes IRIS (Integrated Resource Information System) en Lean 4, avec preuves vérifiées de cohérence et propriétés économiques.
 
-## 📐 Architecture du projet
+## Architecture du projet
 
 ```mermaid
 graph TB
@@ -46,7 +46,7 @@ graph TB
 - **Layer 3 - Applications** : Modèles appliqués à des domaines spécifiques
 - **Layer 4 - Validation** : Tests de cohérence et scénarios concrets
 
-## 📚 Table des matières
+## Table des matières
 
 - [Installation rapide](#-installation-rapide)
 - [Architecture modulaire](#-architecture-modulaire)
@@ -57,7 +57,7 @@ graph TB
 - [Contribuer](#-contribuer)
 - [Documentation](#-documentation)
 
-## 🚀 Installation rapide
+## Installation rapide
 
 ### Prérequis
 
@@ -125,7 +125,7 @@ lake exe irisaxioms
 
 Affiche : `IRIS compiled. All proofs have been verified`
 
-## 🏗️ Architecture modulaire
+## Architecture modulaire
 
 ### Structure du projet
 
@@ -195,7 +195,7 @@ Modélisation des flux d'énergie :
 - Équivalence énergie-monnaie
 - Efficacité des transferts
 
-## 🎓 Tutoriel interactif
+## Tutoriel interactif
 
 ### Créer votre premier théorème
 
@@ -271,7 +271,7 @@ def exemple_transaction : Transaction := {
 }
 ```
 
-## 💡 Concepts IRIS
+## Concepts IRIS
 
 Pour une explication détaillée des concepts économiques, voir [CONCEPTS.md](CONCEPTS.md).
 
@@ -301,7 +301,7 @@ r_t = D_total / V_on_total
 └─ r_t > 1.15 → Système "chaud" → η diminue
 ```
 
-## 🧭 Navigation dans les preuves
+## Navigation dans les preuves
 
 ### Visualiser le graphe de dépendances
 
@@ -331,7 +331,7 @@ En VS Code, placez votre curseur sur :
 - Une tactique → Voir l'état de la preuve
 - Un axiome → Voir sa définition
 
-## 🛠️ Commandes utiles
+## Commandes utiles
 
 ### Build et vérification
 
@@ -383,7 +383,7 @@ cd web_interface && python3 -m http.server 8000
 # Ouvrir http://localhost:8000 dans le navigateur
 ```
 
-## 📖 Exemples d'utilisation
+## Exemples d'utilisation
 
 ### Exemple 1 : Alice crée de la valeur
 
@@ -426,7 +426,7 @@ theorem transaction_valide_exemple :
   exact h_valid.h_suffisant_V
 ```
 
-## 🐛 Dépannage
+## Dépannage
 
 ### Erreur : `lake: command not found`
 
@@ -471,7 +471,7 @@ Vérifiez que :
 #print mon_theoreme  -- Affiche la définition
 ```
 
-## 🤝 Contribuer au projet
+## Contribuer au projet
 
 ### Règles de contribution
 
@@ -496,7 +496,7 @@ Vérifiez que :
 
 Voir [CONTRIBUTING.md](CONTRIBUTING.md) pour plus de détails.
 
-## 📚 Documentation
+## Documentation
 
 ### Documentation Lean
 
@@ -517,7 +517,7 @@ Voir [CONTRIBUTING.md](CONTRIBUTING.md) pour plus de détails.
 2. [Mathematics in Lean](https://leanprover-community.github.io/mathematics_in_lean/)
 3. [Natural Number Game](https://www.ma.imperial.ac.uk/~buzzard/xena/natural_number_game/) (pour apprendre les tactiques)
 
-## 📊 Statistiques du projet
+## Statistiques du projet
 
 - **Axiomes** : 22 axiomes fondamentaux
 - **Théorèmes** : 50+ théorèmes prouvés
@@ -531,11 +531,11 @@ Ce projet est sous licence MIT - voir le fichier [LICENSE](LICENSE) pour plus de
 
 Copyright (c) 2025 Nolan-Ar
 
-## 📧 Contact
+## Contact
 
 Pour toute question ou suggestion, ouvrir une issue sur GitHub.
 
-## 🎯 Statut du projet
+## Statut du projet
 
 **État** : Toutes les preuves sont vérifiées et complètes (pas de `sorry`)
 
@@ -543,5 +543,3 @@ Pour toute question ou suggestion, ouvrir une issue sur GitHub.
 **Version Mathlib** : 4.24.0
 
 ---
-
-**Fait avec ❤️ pour l'économie formelle vérifiée**
