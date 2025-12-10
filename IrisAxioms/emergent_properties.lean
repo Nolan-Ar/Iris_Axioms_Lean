@@ -111,12 +111,12 @@ axiom A20_ajustement_eta : ∀ (rad_before rad_after : RAD),
 axiom equilibrium_is_attractor (rad : RAD) :
     let r_t := thermometre rad
     (r_t > 1.15 ∨ r_t < 0.85) →
-    ∃ rad_next : RAD, True
+    ∃ (_ : RAD), True
 
 /-- Multiple adjustment steps move toward equilibrium -/
 axiom convergence_to_equilibrium (rad_0 : RAD)
     (h_hot : thermometre rad_0 > 1.15) :
-    ∃ (n : ℕ) (rad_n : RAD),
+    ∃ (_ : ℕ) (rad_n : RAD),
     -- After n adjustments, system reaches equilibrium
     0.85 ≤ thermometre rad_n ∧ thermometre rad_n ≤ 1.15
 
@@ -141,7 +141,8 @@ theorem no_free_lunch (η ψ : ℝ) (h_η : 0 < η ∧ η ≤ 2) (h_ψ : 0 < ψ 
     let ΔV := η * ψ * E
     ΔV = 0 := by
   intro E ΔV
-  simp [mul_zero, zero_mul]
+  rw [mul_zero]
+  rw [mul_zero]
 
 /-- Positive value requires positive energy -/
 axiom positive_value_needs_energy (η ψ E : ℝ)
@@ -181,7 +182,7 @@ volatility damping.
 -/
 
 /-- Maximum permissible volatility before adjustment triggers -/
-def max_volatility_before_adjustment : ℝ := 1.15 / 0.85
+noncomputable def max_volatility_before_adjustment : ℝ := 1.15 / 0.85
 
 theorem volatility_bounded :
     max_volatility_before_adjustment < 1.36 := by

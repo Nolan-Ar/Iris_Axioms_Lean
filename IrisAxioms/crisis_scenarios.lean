@@ -109,7 +109,6 @@ example :
 /-- Single beneficiary receives full amount -/
 example (alice : CompteUtilisateur) :
   let beneficiaires : List CompteUtilisateur := [alice]
-  let U_t := (100 : ℝ)
   beneficiaires.length = 1 := by
   rfl
 
