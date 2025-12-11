@@ -39,8 +39,9 @@ lemma not_lt_self_scaled {a r : ℝ} (h_nonneg : 0 ≤ a) (h_coeff : r ≤ (1 : 
   -- a < r * a ≤ 1 * a ⇒ a < 1 * a
   have h_lt_one_mul : a < 1 * a := lt_of_lt_of_le h_contra h_bound
   -- donc a < a, contradiction
-  simp [one_mul] at h_lt_one_mul
-  exact lt_irrefl _ h_lt_one_mul
+  have : a < a := by
+    simpa [one_mul] using h_lt_one_mul
+  exact lt_irrefl _ this
 
 /-!
 ## PROPERTY 1: Global Stability
