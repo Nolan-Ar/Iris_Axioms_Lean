@@ -29,14 +29,18 @@ General lemmas about real number arithmetic used throughout the proofs.
 -/
 
 /-- If a ≥ 0 and r ≤ 1, then a cannot be strictly less than r * a -/
-lemma not_lt_self_scaled {a r : ℝ} (h_nonneg : 0 ≤ a) (h_coeff : r ≤ 1) :
+lemma not_lt_self_scaled {a r : ℝ} (h_nonneg : 0 ≤ a) (h_coeff : r ≤ (1 : ℝ)) :
     ¬ a < r * a := by
   intro h_contra
-  have h_bound : a ≤ r * a := by
-    calc a = 1 * a := by ring
-         _ ≤ r * a := by
-           apply mul_le_mul_of_nonneg_right h_coeff h_nonneg
-  exact not_lt.mpr h_bound h_contra
+  -- r ≤ 1 et a ≥ 0 ⇒ r * a ≤ 1 * a
+  have h_bound : r * a ≤ 1 * a := by
+    have := mul_le_mul_of_nonneg_right h_coeff h_nonneg
+    simpa [one_mul] using this
+  -- a < r * a ≤ 1 * a ⇒ a < 1 * a
+  have h_lt_one_mul : a < 1 * a := lt_of_lt_of_le h_contra h_bound
+  -- donc a < a, contradiction
+  have : a < a := by simpa [one_mul] using h_lt_one_mul
+  exact lt_irrefl _ this
 
 /-!
 ## PROPERTY 1: Global Stability
@@ -70,26 +74,48 @@ axiom A21_capacite_TAP : ∀ (ce : CompteEntrepriseEtendu),
 
 /-- Helper: Reserve is non-negative (treasury and NFTs have non-negative values) -/
 lemma reserve_nonneg (ce : CompteEntrepriseEtendu) :
-    0 ≤ ce.tresorerie_V + (ce.NFT_financiers.map (·.valeur)).sum := by
-  apply add_nonneg
-  · exact ce.h_tresorerie
-  · apply List.sum_nonneg
-    intro nft _
-    exact nft.h_valeur
+    0 ≤ ce.tresorerie_V + (ce.NFT_financiers.map (fun x => x.valeur)).sum := by
+  -- 1. Trésorerie non négative (axiome de base sur CE)
+  have h_tres : 0 ≤ ce.tresorerie_V := ce.h_tresorerie
+
+  -- 2. Chaque NFT financier a une valeur ≥ 0, donc la somme des valeurs est ≥ 0
+  have h_nfts_nonneg :
+      0 ≤ (ce.NFT_financiers.map (fun x => x.valeur)).sum := by
+    -- Pour tout v dans la liste des valeurs, on montre 0 ≤ v
+    have : ∀ v ∈ (ce.NFT_financiers.map (fun x => x.valeur)), 0 ≤ v := by
+      intro v hv
+      -- hv : v ∈ map (fun x => x.valeur) ce.NFT_financiers
+      rcases List.mem_map.1 hv with ⟨nft, hmem, rfl⟩
+      -- nft : NFT, hmem : nft ∈ ce.NFT_financiers, et v = nft.valeur
+      exact nft.h_valeur
+    exact List.sum_nonneg this
+
+  -- 3. Somme de deux quantités ≥ 0 ⇒ somme ≥ 0
+  exact add_nonneg h_tres h_nfts_nonneg
 
 /-- Emergent property: Total leverage bounded by reserves -/
 theorem levier_limite_emergent (ce : CompteEntrepriseEtendu) :
-    let reserve := ce.tresorerie_V + (ce.NFT_financiers.map (·.valeur)).sum
-    let tap_total := (ce.TAP_en_cours.map (·.montant_avance)).sum
+    let reserve := ce.tresorerie_V + (ce.NFT_financiers.map (fun x => x.valeur)).sum
+    let tap_total := (ce.TAP_en_cours.map (fun x => x.montant_avance)).sum
     tap_total ≤ reserve := by
   intro reserve tap_total
-  have h := A21_capacite_TAP ce
-  have h_reserve_nonneg := reserve_nonneg ce
-  calc tap_total ≤ 0.8 * reserve := h
-       _ ≤ 1 * reserve := by
-         apply mul_le_mul_of_nonneg_right _ h_reserve_nonneg
-         norm_num
-       _ = reserve := by ring
+  -- A21 : TAP_total ≤ 0.8 * (trésorerie_V + V_financier)
+  have h_cap := A21_capacite_TAP ce
+  -- reserve ≥ 0
+  have h_reserve_nonneg : 0 ≤ reserve := by
+    -- c'est exactement le lemme précédent, réécrit avec la même définition de reserve
+    simpa using reserve_nonneg ce
+
+  calc
+    tap_total ≤ 0.8 * reserve := by
+      -- A21 est formulé avec les mêmes définitions de reserve et tap_total
+      simpa [reserve, tap_total] using h_cap
+    _ ≤ 1 * reserve := by
+      -- 0.8 ≤ 1 et reserve ≥ 0 ⇒ 0.8 * reserve ≤ 1 * reserve
+      have h_coeff : (0.8 : ℝ) ≤ 1 := by norm_num
+      have := mul_le_mul_of_nonneg_right h_coeff h_reserve_nonneg
+      simpa [one_mul] using this
+    _ = reserve := by ring
 
 /-- Leverage ratio always less than 1 -/
 axiom leverage_ratio_bounded (ce : CompteEntrepriseEtendu)
