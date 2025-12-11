@@ -23,6 +23,22 @@ namespace EmergentProperties
 open IrisAxiomsExtended
 
 /-!
+## Arithmetic Helper Lemmas
+
+General lemmas about real number arithmetic used throughout the proofs.
+-/
+
+/-- If a ≥ 0 and r ≤ 1, then a cannot be strictly less than r * a -/
+lemma not_lt_self_scaled {a r : ℝ} (h_nonneg : 0 ≤ a) (h_coeff : r ≤ 1) :
+    ¬ a < r * a := by
+  intro h_contra
+  have h_bound : a ≤ r * a := by
+    calc a = 1 * a := by ring
+         _ ≤ r * a := by
+           apply mul_le_mul_of_nonneg_right h_coeff h_nonneg
+  exact not_lt.mpr h_bound h_contra
+
+/-!
 ## PROPERTY 1: Global Stability
 
 The combination of A1 (conservation) and A2 (V decomposition)
@@ -52,6 +68,15 @@ axiom A21_capacite_TAP : ∀ (ce : CompteEntrepriseEtendu),
   let tap_total := (ce.TAP_en_cours.map (·.montant_avance)).sum
   tap_total ≤ 0.8 * reserve
 
+/-- Helper: Reserve is non-negative (treasury and NFTs have non-negative values) -/
+lemma reserve_nonneg (ce : CompteEntrepriseEtendu) :
+    0 ≤ ce.tresorerie_V + (ce.NFT_financiers.map (·.valeur)).sum := by
+  apply add_nonneg
+  · exact ce.h_tresorerie
+  · apply List.sum_nonneg
+    intro nft _
+    exact nft.h_valeur
+
 /-- Emergent property: Total leverage bounded by reserves -/
 theorem levier_limite_emergent (ce : CompteEntrepriseEtendu) :
     let reserve := ce.tresorerie_V + (ce.NFT_financiers.map (·.valeur)).sum
@@ -59,8 +84,12 @@ theorem levier_limite_emergent (ce : CompteEntrepriseEtendu) :
     tap_total ≤ reserve := by
   intro reserve tap_total
   have h := A21_capacite_TAP ce
+  have h_reserve_nonneg := reserve_nonneg ce
   calc tap_total ≤ 0.8 * reserve := h
-       _ ≤ reserve := by linarith
+       _ ≤ 1 * reserve := by
+         apply mul_le_mul_of_nonneg_right _ h_reserve_nonneg
+         norm_num
+       _ = reserve := by ring
 
 /-- Leverage ratio always less than 1 -/
 axiom leverage_ratio_bounded (ce : CompteEntrepriseEtendu)
