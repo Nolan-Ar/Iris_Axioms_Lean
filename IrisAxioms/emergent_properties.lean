@@ -36,10 +36,8 @@ theorem stabilite_globale_emergent (sys : SystemState) :
 
 /-- Conservation of economic mass at system level -/
 theorem conservation_masse_emergent (sys : SystemState) :
-  -- Even if we don't have explicit S_total and U_total in SystemState,
-  -- we know V and D are bounded
-  sys.V_total ≥ 0 ∧ sys.D_total ≥ 0 := by
-  exact ⟨sys.h_V, sys.h_D⟩
+    sys.V_total = sys.V_on + sys.V_immo := by
+  exact sys.h_conservation
 
 /-!
 ## PROPERTY 2: Bounded Leverage
@@ -55,10 +53,14 @@ axiom A21_capacite_TAP : ∀ (ce : CompteEntrepriseEtendu),
   tap_total ≤ 0.8 * reserve
 
 /-- Emergent property: Total leverage bounded by reserves -/
-axiom levier_limite_emergent (ce : CompteEntrepriseEtendu) :
+theorem levier_limite_emergent (ce : CompteEntrepriseEtendu) :
     let reserve := ce.tresorerie_V + (ce.NFT_financiers.map (·.valeur)).sum
     let tap_total := (ce.TAP_en_cours.map (·.montant_avance)).sum
-    tap_total ≤ reserve
+    tap_total ≤ reserve := by
+  intro reserve tap_total
+  have h := A21_capacite_TAP ce
+  calc tap_total ≤ 0.8 * reserve := h
+       _ ≤ reserve := by linarith
 
 /-- Leverage ratio always less than 1 -/
 axiom leverage_ratio_bounded (ce : CompteEntrepriseEtendu)
@@ -136,17 +138,31 @@ axiom A18_creation_par_energie : ∀ (η ψ E : ℝ),
   (E = 0 → ΔV = 0)
 
 /-- Zero work produces zero value -/
-theorem no_free_lunch (η ψ : ℝ) (h_η : 0 < η ∧ η ≤ 2) (h_ψ : 0 < ψ ∧ ψ ≤ 1) :
+theorem no_free_lunch (η ψ : ℝ) :
     let E := (0 : ℝ)
     let ΔV := η * ψ * E
     ΔV = 0 := by
   intro E ΔV
-  ring
+  simp [E, ΔV]
+
+/-- Helper: Positive coefficients preserve positivity of energy-value relation -/
+lemma value_creation_positive (η ψ E : ℝ) (h_η : 0 < η) (h_ψ : 0 < ψ) (h_E : 0 < E) :
+    0 < η * ψ * E := by
+  apply mul_pos
+  · apply mul_pos h_η h_ψ
+  · exact h_E
 
 /-- Positive value requires positive energy -/
 axiom positive_value_needs_energy (η ψ E : ℝ)
     (h_η : 0 < η) (h_ψ : 0 < ψ) (h_ΔV_pos : 0 < η * ψ * E) :
     0 < E
+
+/-- Helper: Value creation is monotone in energy when coefficients are positive -/
+lemma value_monotone_in_energy (η ψ : ℝ) (h_η : 0 < η) (h_ψ : 0 < ψ)
+    (E₁ E₂ : ℝ) (h_le : E₁ ≤ E₂) :
+    η * ψ * E₁ ≤ η * ψ * E₂ := by
+  apply mul_le_mul_of_nonneg_left h_le
+  apply mul_nonneg (le_of_lt h_η) (le_of_lt h_ψ)
 
 /-!
 ## PROPERTY 6: Network Contagion Limits
@@ -242,6 +258,16 @@ axiom A13_perissabilite_U : ∀ (U_t : ℝ) (rho : ℝ),
   let U_next := (1 - rho) * U_t
   U_next < U_t
 
+/-- Helper: Decay factor preserves positivity -/
+lemma decay_factor_positive (rho : ℝ) (h_rho : 0 < rho ∧ rho < 1) :
+    0 < 1 - rho := by
+  linarith
+
+/-- Helper: Decay factor is less than one -/
+lemma decay_factor_bounded (rho : ℝ) (h_rho : 0 < rho ∧ rho < 1) :
+    1 - rho < 1 := by
+  linarith
+
 /-- Combined effect: sustainable circulation (requires rho > 0) -/
 theorem ubi_sustainable_circulation (U_t : ℝ) (rho : ℝ)
     (h_U_pos : 0 < U_t) (h_rho : 0 < rho ∧ rho < 1) :
@@ -249,13 +275,11 @@ theorem ubi_sustainable_circulation (U_t : ℝ) (rho : ℝ)
     0 < U_next ∧ U_next < U_t := by
   intro U_next
   constructor
+  · apply mul_pos (decay_factor_positive rho h_rho) h_U_pos
   · calc U_next = (1 - rho) * U_t := rfl
-      _ > 0 := by
-        apply mul_pos
-        · linarith  -- prouve que 1 - rho > 0
-        · exact h_U_pos
-  · dsimp [U_next]
-    nlinarith [h_rho.2, h_U_pos]  -- prouve que (1 - rho) * U_t < U_t
+         _ < 1 * U_t := by
+           apply mul_lt_mul_of_pos_right (decay_factor_bounded rho h_rho) h_U_pos
+         _ = U_t := by ring
 
 /-!
 ## PROPERTY 10: No Arbitrary Debt Creation
@@ -271,13 +295,13 @@ theorem debt_mirrors_value (v_before v_after : Valeurs)
     (h_conservation_after : v_after.S + v_after.U + v_after.V + v_after.D = 0) :
     v_after.V - v_before.V = -(v_after.D - v_before.D) := by
   have ⟨h_S, h_U⟩ := h_only_V_changes
-  calc v_after.V - v_before.V
-      = (v_after.S + v_after.U + v_after.V + v_after.D) -
-        (v_before.S + v_before.U + v_before.V + v_before.D) -
-        (v_after.S - v_before.S) - (v_after.U - v_before.U) -
-        (v_after.D - v_before.D) := by ring
-    _ = 0 - 0 - 0 - 0 - (v_after.D - v_before.D) := by rw [h_conservation_after, h_conservation_before, h_S, h_U]; ring
-    _ = -(v_after.D - v_before.D) := by ring
+  -- Subtract the two conservation equations
+  have h_diff : (v_after.S - v_before.S) + (v_after.U - v_before.U) +
+                (v_after.V - v_before.V) + (v_after.D - v_before.D) = 0 := by
+    linear_combination h_conservation_after - h_conservation_before
+  -- Apply the constraints that S and U don't change
+  simp only [h_S, h_U, sub_self, zero_add] at h_diff
+  linarith
 
 /-!
 ## Emergent Properties Summary
