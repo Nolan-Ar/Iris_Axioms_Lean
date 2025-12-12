@@ -526,9 +526,15 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
 ### IRIS Documentation
 
 - [CONCEPTS_EN.md](CONCEPTS_EN.md) - Detailed economic concepts explanations (English)
-- [CONCEPTS_FR.md](CONCEPTS_FR.md) - Detailed economic concepts explanations (French)
+- [CONCEPTS_FR.md](CONCEPTS_FR.md) - Explications détaillées des concepts économiques (Français)
 - [REFERENCES.bib](REFERENCES.bib) - Scientific bibliography
-- [CONTRIBUTING.md](CONTRIBUTING.md) - Contribution guide
+- [CONTRIBUTING_EN.md](CONTRIBUTING_EN.md) - Contribution guide (English)
+- [CONTRIBUTING_FR.md](CONTRIBUTING_FR.md) - Guide de contribution (Français)
+
+### Visualization Tools
+
+- [thermometer_visualizer.py](tools/thermometer_visualizer.py) - CLI visualizer for RAD thermometer (r_t)
+- [index.html](web_interface/index.html) - Interactive web interface for economic simulation
 
 ### Recommended Tutorials
 
