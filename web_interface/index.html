@@ -150,7 +150,7 @@
         }
 
         canvas {
-            max-height: 300px !important;
+            max-height: 400px !important;
         }
 
         #axiomStatus {
@@ -288,27 +288,35 @@
                 </div>
 
                 <div class="slider-group">
-                    <label for="etaPhys">
-                        η_phys (Efficacité physique):
-                        <span class="slider-value" id="etaPhysValue">0.8</span>
+                    <label for="eta">
+                        η (Coefficient de création):
+                        <span class="slider-value" id="etaValue">1.20</span>
                     </label>
-                    <input type="range" id="etaPhys" min="0.1" max="1.0" step="0.05" value="0.8">
-                </div>
-
-                <div class="slider-group">
-                    <label for="muSocial">
-                        μ_social (Multiplicateur social):
-                        <span class="slider-value" id="muSocialValue">1.5</span>
-                    </label>
-                    <input type="range" id="muSocial" min="1.0" max="2.0" step="0.1" value="1.5">
+                    <input type="range" id="eta" min="0.5" max="2.0" step="0.05" value="1.2">
                 </div>
 
                 <div class="slider-group">
                     <label for="kappa">
                         κ (Conversion U→V):
-                        <span class="slider-value" id="kappaValue">0.8</span>
+                        <span class="slider-value" id="kappaValue">0.80</span>
                     </label>
-                    <input type="range" id="kappa" min="0.1" max="1.0" step="0.05" value="0.8">
+                    <input type="range" id="kappa" min="0.5" max="2.0" step="0.05" value="0.8">
+                </div>
+
+                <div class="slider-group">
+                    <label for="delta_D">
+                        δ_D (Amortissement D par cycle):
+                        <span class="slider-value" id="delta_DValue">0.1042%</span>
+                    </label>
+                    <input type="range" id="delta_D" min="0" max="0.005" step="0.0001" value="0.001041666">
+                </div>
+
+                <div class="slider-group">
+                    <label for="adjustment_rate">
+                        Taux d'ajustement (η, κ):
+                        <span class="slider-value" id="adjustment_rateValue">5.0%</span>
+                    </label>
+                    <input type="range" id="adjustment_rate" min="0.01" max="0.15" step="0.01" value="0.05">
                 </div>
 
                 <button class="btn-simulate" onclick="simulate()">Lancer la simulation</button>
@@ -322,23 +330,23 @@
                     <div style="margin-top: 10px; color: #666;" id="recommendation"></div>
                 </div>
 
-                <div style="background: #f0f7ff; padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #667eea;">
-                    <h4 style="margin: 0 0 10px 0; color: #667eea;">Décomposition de η</h4>
+                <div style="background: #fff9e6; padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #f59e0b;">
+                    <h4 style="margin: 0 0 10px 0; color: #f59e0b;">⚙️ Paramètres de régulation</h4>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.95em;">
                         <div>
-                            <strong>η_phys:</strong> <span id="eta_phys_display">0.8</span>
-                            <div style="font-size: 0.85em; color: #666;">Efficacité physique [0, 1]</div>
+                            <strong>η (actuel):</strong> <span id="eta_display">1.20</span>
+                            <div style="font-size: 0.85em; color: #666;">Coefficient de création [0.5, 2.0]</div>
                         </div>
                         <div>
-                            <strong>μ_social:</strong> <span id="mu_social_display">1.5</span>
-                            <div style="font-size: 0.85em; color: #666;">Multiplicateur social [1, 2]</div>
+                            <strong>κ (actuel):</strong> <span id="kappa_display">0.80</span>
+                            <div style="font-size: 0.85em; color: #666;">Conversion U→V [0.5, 2.0]</div>
                         </div>
                         <div style="grid-column: 1 / -1;">
-                            <strong>η = η_phys × μ_social:</strong> <span id="eta_display">1.2</span>
-                            <div style="font-size: 0.85em; color: #666;">Coefficient de création [0, 2]</div>
+                            <strong>δ_D (amortissement):</strong> <span id="delta_D_display">0.1042%</span> par cycle
+                            <div style="font-size: 0.85em; color: #666;">Dissipation mensuelle du passif thermométrique</div>
                         </div>
                     </div>
-                    <div style="margin-top: 12px; padding: 10px; background: #fff9e6; border-radius: 5px; font-size: 0.85em;">
+                    <div style="margin-top: 12px; padding: 10px; background: #f0f7ff; border-radius: 5px; font-size: 0.85em;">
                         <strong>Convention de signe :</strong> Dans ce simulateur, D_total (Dette) est affiché comme valeur positive
                         pour l'intuition. Dans la formalisation Lean, D ≤ 0 (dette thermodynamique négative par définition).
                     </div>
@@ -348,20 +356,30 @@
                     <canvas id="thermometerChart"></canvas>
                 </div>
 
+                <div class="chart-container">
+                    <canvas id="coefficientsChart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <canvas id="valuesChart"></canvas>
+                </div>
+
                 <div style="background: #fffaf0; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b; font-size: 0.9em;">
                     <h4 style="margin: 0 0 10px 0; color: #f59e0b;">📊 À propos de cette simulation</h4>
                     <p style="margin: 5px 0; line-height: 1.6;">
-                        Cette simulation illustre les <strong>axiomes A19 et A20</strong> de manière simplifiée sur 50 cycles.
+                        Cette simulation illustre les <strong>axiomes A19 et A20</strong> du protocole IRIS sur 50 cycles.
                         À chaque cycle, le système :
                     </p>
                     <ol style="margin: 5px 0 5px 20px; line-height: 1.6;">
+                        <li>Applique l'amortissement mensuel : <code>D ← D × (1 - δ_D)</code></li>
                         <li>Calcule <code>r_t = D_total / V_on_total</code> (thermomètre économique)</li>
-                        <li>Ajuste automatiquement <code>η</code> selon les seuils (0.85, 1.15)</li>
-                        <li>Simule la création de valeur avec le nouveau <code>η</code></li>
+                        <li>Ajuste automatiquement <code>η</code> et <code>κ</code> selon les zones (froid/équilibre/chaud)</li>
+                        <li>Respecte les bornes [0.5, 2.0] et variations max |Δη|, |Δκ| ≤ 0.15</li>
+                        <li>Simule la création de valeur : <code>ΔV = η × E</code> avec conservation <code>ΔD = -ΔV</code></li>
                     </ol>
                     <p style="margin: 5px 0; line-height: 1.6; color: #666;">
                         <strong>Simplifications :</strong> Ce modèle n'inclut pas la distribution du RU (A12),
-                        la conversion U→V (κ), ni les contraintes complètes de conservation S+U+V+D=0 (A1).
+                        ni les contraintes complètes de conservation S+U+V+D=0 (A1).
                         Pour la formalisation mathématique rigoureuse, consultez les fichiers Lean du projet.
                     </p>
                 </div>
@@ -370,10 +388,11 @@
                     <h3>Axiomes illustrés (version simplifiée)</h3>
                     <ul>
                         <li><strong>A19</strong> : Thermomètre économique (r_t = D/V_on)</li>
-                        <li><strong>A20</strong> : Régulation automatique de η</li>
+                        <li><strong>A20</strong> : Régulation automatique de η et κ</li>
+                        <li><strong>Amortissement</strong> : Dissipation mensuelle du passif thermométrique D</li>
                     </ul>
                     <p style="margin-top: 15px; font-size: 0.9em; color: #666; font-style: italic;">
-                        <strong>Note:</strong> Ce simulateur illustre les axiomes A19 et A20 dans une version simplifiée.
+                        <strong>Note:</strong> Ce simulateur illustre les axiomes A19 et A20 dans une version simplifiée avec amortissement.
                         Pour la formalisation complète incluant A1 (conservation S+U+V+D=0), A12 (distribution RU),
                         et tous les autres axiomes, consultez
                         <a href="../CONCEPTS_FR.md" style="color: #667eea;">CONCEPTS_FR.md</a>
@@ -386,12 +405,6 @@
                 <h3>Explications des concepts</h3>
                 <div class="concepts-grid">
                     <div class="concept">
-                        <strong>η = η_phys × μ_social</strong>
-                        <p>Coefficient de création de valeur. Combine l'efficacité technique (η_phys) et l'impact social (μ_social).</p>
-                        <p><em>Exemple:</em> η = 0.8 × 1.5 = 1.2 signifie qu'1 euro d'énergie crée 1.20€ de valeur.</p>
-                    </div>
-
-                    <div class="concept">
                         <strong>Thermomètre r_t = D/V_on</strong>
                         <p>Mesure la "température" économique du système.</p>
                         <p>• r_t &lt; 0.85 : FROID (déflation)<br>
@@ -400,10 +413,19 @@
                     </div>
 
                     <div class="concept">
-                        <strong>Régulation automatique A20</strong>
-                        <p>Ajustement automatique de η selon le thermomètre.</p>
-                        <p>Si r_t &gt; 1.15 → Réduire η (moins de création)<br>
-                           Si r_t &lt; 0.85 → Augmenter η (plus de création)</p>
+                        <strong>Régulation automatique (A20)</strong>
+                        <p>Ajustement automatique de η et κ selon le thermomètre.</p>
+                        <p>Si r_t &gt; 1.15 → Réduire η et κ (moins de création)<br>
+                           Si r_t &lt; 0.85 → Augmenter η et κ (plus de création)<br>
+                           Bornes : 0.5 ≤ η, κ ≤ 2.0 | Variation max : |Δ| ≤ 0.15</p>
+                    </div>
+
+                    <div class="concept">
+                        <strong>Amortissement δ_D</strong>
+                        <p>Dissipation mensuelle du passif thermométrique D.</p>
+                        <p>À chaque cycle : <code>D ← D × (1 - δ_D)</code><br>
+                           Valeur par défaut : δ_D = 0.1042% ≈ horizon 80 ans<br>
+                           Simule la "péremption" naturelle de la dette thermodynamique.</p>
                     </div>
 
                     <div class="concept">
@@ -417,13 +439,14 @@
                     <div class="concept">
                         <strong>Conservation S + U + V + D = 0</strong>
                         <p>Premier principe de la thermodynamique appliqué à l'économie.</p>
-                        <p>Toute création de valeur (V &gt; 0) génère une dette égale (D &lt; 0).</p>
+                        <p>Toute création de valeur (V &gt; 0) génère une dette égale (D &lt; 0 dans Lean, affiché positif dans l'UI).</p>
                     </div>
 
                     <div class="concept">
                         <strong>κ - Conversion U→V</strong>
                         <p>Coefficient de conversion de Unum (périssable) vers Verum (durable).</p>
-                        <p>κ ≤ 1 car U perd de la valeur avec le temps (péremption).</p>
+                        <p>Ajusté automatiquement par le thermomètre comme η.<br>
+                           Bornes : 0.5 ≤ κ ≤ 2.0</p>
                     </div>
                 </div>
             </div>
@@ -432,14 +455,26 @@
 
     <script>
         let thermometerChart = null;
+        let coefficientsChart = null;
+        let valuesChart = null;
 
         // Update slider values in real-time
-        const sliders = ['D_total', 'V_on_total', 'etaPhys', 'muSocial', 'kappa'];
+        const sliders = ['D_total', 'V_on_total', 'eta', 'kappa', 'delta_D', 'adjustment_rate'];
         sliders.forEach(id => {
             const slider = document.getElementById(id);
             const valueDisplay = document.getElementById(id + 'Value');
             slider.addEventListener('input', (e) => {
-                valueDisplay.textContent = parseFloat(e.target.value).toFixed(id.includes('eta') || id.includes('mu') || id.includes('kappa') ? 2 : 0);
+                let displayValue;
+                if (id === 'delta_D') {
+                    displayValue = (parseFloat(e.target.value) * 100).toFixed(4) + '%';
+                } else if (id === 'adjustment_rate') {
+                    displayValue = (parseFloat(e.target.value) * 100).toFixed(1) + '%';
+                } else if (id.includes('eta') || id.includes('kappa')) {
+                    displayValue = parseFloat(e.target.value).toFixed(2);
+                } else {
+                    displayValue = parseFloat(e.target.value).toFixed(0);
+                }
+                valueDisplay.textContent = displayValue;
                 simulate(); // Auto-update
             });
         });
@@ -449,33 +484,37 @@
                 return {
                     zone: 'FROID',
                     class: 'zone-cold',
-                    recommendation: 'Système en déflation → Augmenter η pour créer plus de valeur'
+                    recommendation: 'Système en déflation → η et κ augmentent automatiquement'
                 };
             } else if (r_t <= 1.15) {
                 return {
                     zone: 'ÉQUILIBRE',
                     class: 'zone-equilibrium',
-                    recommendation: 'Système stable → Maintenir η constant'
+                    recommendation: 'Système stable → η et κ maintenus constants'
                 };
             } else {
                 return {
                     zone: 'CHAUD',
                     class: 'zone-hot',
-                    recommendation: 'Système en inflation → Réduire η pour limiter la création'
+                    recommendation: 'Système en inflation → η et κ diminuent automatiquement'
                 };
             }
+        }
+
+        function clamp(value, min, max) {
+            return Math.max(min, Math.min(max, value));
         }
 
         function simulate() {
             // Get parameter values
             const D_total = parseFloat(document.getElementById('D_total').value);
             const V_on_total = parseFloat(document.getElementById('V_on_total').value);
-            const etaPhys = parseFloat(document.getElementById('etaPhys').value);
-            const muSocial = parseFloat(document.getElementById('muSocial').value);
-            const kappa = parseFloat(document.getElementById('kappa').value);
+            const eta_initial = parseFloat(document.getElementById('eta').value);
+            const kappa_initial = parseFloat(document.getElementById('kappa').value);
+            const delta_D = parseFloat(document.getElementById('delta_D').value);
+            const adjustment_rate = parseFloat(document.getElementById('adjustment_rate').value);
 
-            // Calculate derived values
-            const eta = etaPhys * muSocial;
+            // Calculate initial thermometer
             const r_t = D_total / V_on_total;
 
             // Update thermometer display
@@ -486,112 +525,122 @@
             document.getElementById('zoneLabel').className = 'zone-label ' + zoneInfo.class;
             document.getElementById('recommendation').textContent = zoneInfo.recommendation;
 
-            // Update η decomposition display
-            document.getElementById('eta_phys_display').textContent = etaPhys.toFixed(2);
-            document.getElementById('mu_social_display').textContent = muSocial.toFixed(2);
-            document.getElementById('eta_display').textContent = eta.toFixed(2);
+            // Update parameter display
+            document.getElementById('eta_display').textContent = eta_initial.toFixed(2);
+            document.getElementById('kappa_display').textContent = kappa_initial.toFixed(2);
+            document.getElementById('delta_D_display').textContent = (delta_D * 100).toFixed(4) + '%';
 
             // Simulate evolution over 50 cycles
             const cycles = 50;
-            const history = simulateEvolution(D_total, V_on_total, eta, kappa, cycles);
+            const history = simulateEvolution(D_total, V_on_total, eta_initial, kappa_initial, delta_D, adjustment_rate, cycles);
 
-            // Update chart
-            updateChart(history);
+            // Update charts
+            updateCharts(history);
         }
 
-        function simulateEvolution(D_total, V_on_total, eta, kappa, cycles) {
+        function simulateEvolution(D_total, V_on_total, eta, kappa, delta_D, adjustment_rate, cycles) {
             const history = {
                 cycles: [0],
                 r_t: [D_total / V_on_total],
                 eta: [eta],
+                kappa: [kappa],
                 V_on: [V_on_total],
-                D: [D_total]
+                D: [D_total],
+                V_norm: [1.0],
+                D_norm: [1.0]
             };
 
             let current_D = D_total;
             let current_V = V_on_total;
             let current_eta = eta;
+            let current_kappa = kappa;
+
+            const V_initial = V_on_total;
+            const D_initial = D_total;
 
             for (let i = 1; i <= cycles; i++) {
+                // 1. Apply debt amortization FIRST
+                current_D = current_D * (1 - delta_D);
+
+                // 2. Calculate thermometer
                 const r_t = current_D / current_V;
 
-                // Apply A20 automatic adjustment
+                // 3. Apply A20 automatic adjustment for both η and κ
+                let delta_eta = 0;
+                let delta_kappa = 0;
+
                 if (r_t > 1.15) {
-                    current_eta = current_eta * 0.95; // Reduce by 5%
+                    // Hot → reduce η and κ
+                    delta_eta = -current_eta * adjustment_rate;
+                    delta_kappa = -current_kappa * adjustment_rate;
                 } else if (r_t < 0.85) {
-                    current_eta = current_eta * 1.05; // Increase by 5%
+                    // Cold → increase η and κ
+                    delta_eta = current_eta * adjustment_rate;
+                    delta_kappa = current_kappa * adjustment_rate;
                 }
+                // Equilibrium → no change
 
-                // Bounds: 0.1 < eta <= 2.0
-                current_eta = Math.max(0.1, Math.min(2.0, current_eta));
+                // 4. Apply variation limits: |Δη|, |Δκ| ≤ 0.15
+                delta_eta = clamp(delta_eta, -0.15, 0.15);
+                delta_kappa = clamp(delta_kappa, -0.15, 0.15);
 
-                // Simulate value creation
+                current_eta = current_eta + delta_eta;
+                current_kappa = current_kappa + delta_kappa;
+
+                // 5. Apply bounds: 0.5 ≤ η, κ ≤ 2.0
+                current_eta = clamp(current_eta, 0.5, 2.0);
+                current_kappa = clamp(current_kappa, 0.5, 2.0);
+
+                // 6. Simulate value creation
                 const E_per_cycle = 1000;
                 const delta_V = current_eta * E_per_cycle;
-                const delta_D = -delta_V; // Conservation
+                const delta_D_creation = -delta_V; // Conservation: D mirrors V
 
                 current_V += delta_V;
-                current_D += delta_D;
+                current_D += delta_D_creation;
 
                 history.cycles.push(i);
                 history.r_t.push(current_D / current_V);
                 history.eta.push(current_eta);
+                history.kappa.push(current_kappa);
                 history.V_on.push(current_V);
                 history.D.push(current_D);
+                history.V_norm.push(current_V / V_initial);
+                history.D_norm.push(current_D / D_initial);
             }
 
             return history;
         }
 
-        function updateChart(history) {
-            const ctx = document.getElementById('thermometerChart').getContext('2d');
-
+        function updateCharts(history) {
+            // Chart 1: Thermometer evolution
+            const ctx1 = document.getElementById('thermometerChart').getContext('2d');
             if (thermometerChart) {
                 thermometerChart.destroy();
             }
 
-            thermometerChart = new Chart(ctx, {
+            thermometerChart = new Chart(ctx1, {
                 type: 'line',
                 data: {
                     labels: history.cycles,
-                    datasets: [
-                        {
-                            label: 'r_t (Thermomètre)',
-                            data: history.r_t,
-                            borderColor: 'rgb(75, 192, 192)',
-                            backgroundColor: 'rgba(75, 192, 192, 0.1)',
-                            tension: 0.4,
-                            yAxisID: 'y'
-                        },
-                        {
-                            label: 'η (Efficacité)',
-                            data: history.eta,
-                            borderColor: 'rgb(153, 102, 255)',
-                            backgroundColor: 'rgba(153, 102, 255, 0.1)',
-                            tension: 0.4,
-                            yAxisID: 'y1'
-                        }
-                    ]
+                    datasets: [{
+                        label: 'r_t (Thermomètre)',
+                        data: history.r_t,
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                        tension: 0.4
+                    }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: true,
-                    interaction: {
-                        mode: 'index',
-                        intersect: false
-                    },
                     plugins: {
                         title: {
                             display: true,
-                            text: 'Évolution du thermomètre et de η sur 50 cycles',
-                            font: {
-                                size: 16,
-                                weight: 'bold'
-                            }
+                            text: 'Évolution du thermomètre r_t sur 50 cycles',
+                            font: { size: 16, weight: 'bold' }
                         },
-                        legend: {
-                            position: 'top'
-                        },
+                        legend: { position: 'top' },
                         annotation: {
                             annotations: {
                                 line1: {
@@ -624,33 +673,102 @@
                         }
                     },
                     scales: {
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Cycles'
-                            }
+                        x: { title: { display: true, text: 'Cycles' } },
+                        y: { title: { display: true, text: 'r_t' } }
+                    }
+                }
+            });
+
+            // Chart 2: η and κ evolution
+            const ctx2 = document.getElementById('coefficientsChart').getContext('2d');
+            if (coefficientsChart) {
+                coefficientsChart.destroy();
+            }
+
+            coefficientsChart = new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: history.cycles,
+                    datasets: [
+                        {
+                            label: 'η (Coefficient de création)',
+                            data: history.eta,
+                            borderColor: 'rgb(153, 102, 255)',
+                            backgroundColor: 'rgba(153, 102, 255, 0.1)',
+                            tension: 0.4
                         },
-                        y: {
-                            type: 'linear',
-                            display: true,
-                            position: 'left',
-                            title: {
-                                display: true,
-                                text: 'r_t'
-                            }
-                        },
-                        y1: {
-                            type: 'linear',
-                            display: true,
-                            position: 'right',
-                            title: {
-                                display: true,
-                                text: 'η'
-                            },
-                            grid: {
-                                drawOnChartArea: false
-                            }
+                        {
+                            label: 'κ (Conversion U→V)',
+                            data: history.kappa,
+                            borderColor: 'rgb(255, 159, 64)',
+                            backgroundColor: 'rgba(255, 159, 64, 0.1)',
+                            tension: 0.4
                         }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Évolution de η et κ (régulation automatique)',
+                            font: { size: 16, weight: 'bold' }
+                        },
+                        legend: { position: 'top' }
+                    },
+                    scales: {
+                        x: { title: { display: true, text: 'Cycles' } },
+                        y: {
+                            title: { display: true, text: 'Coefficients' },
+                            min: 0.4,
+                            max: 2.1
+                        }
+                    }
+                }
+            });
+
+            // Chart 3: V and D normalized evolution
+            const ctx3 = document.getElementById('valuesChart').getContext('2d');
+            if (valuesChart) {
+                valuesChart.destroy();
+            }
+
+            valuesChart = new Chart(ctx3, {
+                type: 'line',
+                data: {
+                    labels: history.cycles,
+                    datasets: [
+                        {
+                            label: 'V_on_total (normalisé)',
+                            data: history.V_norm,
+                            borderColor: 'rgb(54, 162, 235)',
+                            backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                            tension: 0.4
+                        },
+                        {
+                            label: 'D_total (normalisé)',
+                            data: history.D_norm,
+                            borderColor: 'rgb(255, 99, 132)',
+                            backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                            tension: 0.4
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Évolution de V et D (normalisés à 1.0 au départ)',
+                            font: { size: 16, weight: 'bold' }
+                        },
+                        legend: { position: 'top' }
+                    },
+                    scales: {
+                        x: { title: { display: true, text: 'Cycles' } },
+                        y: { title: { display: true, text: 'Valeur normalisée' } }
                     }
                 }
             });
