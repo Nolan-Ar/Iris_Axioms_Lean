@@ -148,7 +148,8 @@ Iris_Axioms_Lean/
 │   └── index.html                       # Interface web pour experts non-math
 ├── IrisAxioms.lean                      # Point d'entrée de la bibliothèque
 ├── Main.lean                            # Programme principal
-├── CONCEPTS.md                          # Explications des concepts économiques
+├── CONCEPTS_EN.md                       # Explications des concepts (English)
+├── CONCEPTS_FR.md                       # Explications des concepts (Français)
 ├── REFERENCES.bib                       # Bibliographie
 ├── lakefile.lean                        # Configuration Lake (build)
 ├── lean-toolchain                       # Version Lean (v4.24.0)
@@ -273,7 +274,7 @@ def exemple_transaction : Transaction := {
 
 ## 💡 Concepts IRIS
 
-Pour une explication détaillée des concepts économiques, voir [CONCEPTS.md](CONCEPTS.md).
+Pour une explication détaillée des concepts économiques, voir [CONCEPTS_FR.md](CONCEPTS_FR.md) ou [CONCEPTS_EN.md](CONCEPTS_EN.md).
 
 ### Concepts clés
 
@@ -507,9 +508,16 @@ Voir [CONTRIBUTING.md](CONTRIBUTING.md) pour plus de détails.
 
 ### Documentation IRIS
 
-- [CONCEPTS.md](CONCEPTS.md) - Explications détaillées des concepts économiques
+- [CONCEPTS_FR.md](CONCEPTS_FR.md) - Explications détaillées des concepts économiques (Français)
+- [CONCEPTS_EN.md](CONCEPTS_EN.md) - Detailed economic concepts explanations (English)
 - [REFERENCES.bib](REFERENCES.bib) - Bibliographie scientifique
-- [CONTRIBUTING.md](CONTRIBUTING.md) - Guide de contribution
+- [CONTRIBUTING_FR.md](CONTRIBUTING_FR.md) - Guide de contribution (Français)
+- [CONTRIBUTING_EN.md](CONTRIBUTING_EN.md) - Contribution guide (English)
+
+### Outils de visualisation
+
+- [thermometer_visualizer.py](tools/thermometer_visualizer.py) - Visualiseur CLI du thermomètre RAD (r_t)
+- [index.html](web_interface/index.html) - Interface web interactive pour simulation économique
 
 ### Tutoriels recommandés
 

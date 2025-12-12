@@ -215,7 +215,9 @@ Before contributing, make sure you have:
 
 ### Documentation Language
 
-- **All documentation must be in English**
+- **Documentation can be in English or French** (bilingual project)
+- User-facing documentation (README, CONCEPTS) should be available in both languages
+- Code comments and internal documentation are preferably in English
 - Use clear, concise language
 - Provide examples when helpful
 - Explain economic concepts for non-experts
