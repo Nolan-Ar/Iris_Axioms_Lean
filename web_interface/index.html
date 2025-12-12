@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IRIS Economic Simulator</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -321,19 +322,63 @@
                     <div style="margin-top: 10px; color: #666;" id="recommendation"></div>
                 </div>
 
+                <div style="background: #f0f7ff; padding: 15px; border-radius: 10px; margin: 20px 0; border-left: 4px solid #667eea;">
+                    <h4 style="margin: 0 0 10px 0; color: #667eea;">Décomposition de η</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.95em;">
+                        <div>
+                            <strong>η_phys:</strong> <span id="eta_phys_display">0.8</span>
+                            <div style="font-size: 0.85em; color: #666;">Efficacité physique [0, 1]</div>
+                        </div>
+                        <div>
+                            <strong>μ_social:</strong> <span id="mu_social_display">1.5</span>
+                            <div style="font-size: 0.85em; color: #666;">Multiplicateur social [1, 2]</div>
+                        </div>
+                        <div style="grid-column: 1 / -1;">
+                            <strong>η = η_phys × μ_social:</strong> <span id="eta_display">1.2</span>
+                            <div style="font-size: 0.85em; color: #666;">Coefficient de création [0, 2]</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 12px; padding: 10px; background: #fff9e6; border-radius: 5px; font-size: 0.85em;">
+                        <strong>Convention de signe :</strong> Dans ce simulateur, D_total (Dette) est affiché comme valeur positive
+                        pour l'intuition. Dans la formalisation Lean, D ≤ 0 (dette thermodynamique négative par définition).
+                    </div>
+                </div>
+
                 <div class="chart-container">
                     <canvas id="thermometerChart"></canvas>
                 </div>
 
+                <div style="background: #fffaf0; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #f59e0b; font-size: 0.9em;">
+                    <h4 style="margin: 0 0 10px 0; color: #f59e0b;">📊 À propos de cette simulation</h4>
+                    <p style="margin: 5px 0; line-height: 1.6;">
+                        Cette simulation illustre les <strong>axiomes A19 et A20</strong> de manière simplifiée sur 50 cycles.
+                        À chaque cycle, le système :
+                    </p>
+                    <ol style="margin: 5px 0 5px 20px; line-height: 1.6;">
+                        <li>Calcule <code>r_t = D_total / V_on_total</code> (thermomètre économique)</li>
+                        <li>Ajuste automatiquement <code>η</code> selon les seuils (0.85, 1.15)</li>
+                        <li>Simule la création de valeur avec le nouveau <code>η</code></li>
+                    </ol>
+                    <p style="margin: 5px 0; line-height: 1.6; color: #666;">
+                        <strong>Simplifications :</strong> Ce modèle n'inclut pas la distribution du RU (A12),
+                        la conversion U→V (κ), ni les contraintes complètes de conservation S+U+V+D=0 (A1).
+                        Pour la formalisation mathématique rigoureuse, consultez les fichiers Lean du projet.
+                    </p>
+                </div>
+
                 <div id="axiomStatus">
-                    <h3>Axiomes vérifiés</h3>
+                    <h3>Axiomes illustrés (version simplifiée)</h3>
                     <ul>
-                        <li><strong>A1</strong> : Conservation monétaire (S + U + V + D = 0)</li>
-                        <li><strong>A6</strong> : Création de valeur énergétique (ΔV = η × ψ × E)</li>
-                        <li><strong>A12</strong> : Distribution du Revenu Universel</li>
                         <li><strong>A19</strong> : Thermomètre économique (r_t = D/V_on)</li>
                         <li><strong>A20</strong> : Régulation automatique de η</li>
                     </ul>
+                    <p style="margin-top: 15px; font-size: 0.9em; color: #666; font-style: italic;">
+                        <strong>Note:</strong> Ce simulateur illustre les axiomes A19 et A20 dans une version simplifiée.
+                        Pour la formalisation complète incluant A1 (conservation S+U+V+D=0), A12 (distribution RU),
+                        et tous les autres axiomes, consultez
+                        <a href="../CONCEPTS_FR.md" style="color: #667eea;">CONCEPTS_FR.md</a>
+                        et le code Lean du projet.
+                    </p>
                 </div>
             </div>
 
@@ -440,6 +485,11 @@
             document.getElementById('zoneLabel').textContent = zoneInfo.zone;
             document.getElementById('zoneLabel').className = 'zone-label ' + zoneInfo.class;
             document.getElementById('recommendation').textContent = zoneInfo.recommendation;
+
+            // Update η decomposition display
+            document.getElementById('eta_phys_display').textContent = etaPhys.toFixed(2);
+            document.getElementById('mu_social_display').textContent = muSocial.toFixed(2);
+            document.getElementById('eta_display').textContent = eta.toFixed(2);
 
             // Simulate evolution over 50 cycles
             const cycles = 50;

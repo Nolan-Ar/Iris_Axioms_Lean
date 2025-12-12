@@ -5,17 +5,25 @@ IRIS Economic Thermometer Visualizer
 This tool visualizes the IRIS economic thermometer (r_t = D_total / V_on_total)
 and simulates its evolution over time with automatic η adjustment.
 
+NOTE: Sign Convention for D (Debt)
+    In the Lean formalization, D ≤ 0 (debt is thermodynamically negative by definition).
+    This visualizer uses D > 0 for intuitive display (positive debt values).
+    Both conventions represent the same economic reality: D mirrors created value V.
+
 Usage:
     python3 thermometer_visualizer.py
     python3 thermometer_visualizer.py --D_total=120000 --V_on_total=100000
     python3 thermometer_visualizer.py --simulate --cycles=100
+    python3 thermometer_visualizer.py --simulate --cycles=50 --export_csv=results.csv
+    python3 thermometer_visualizer.py --cold_threshold=0.80 --hot_threshold=1.20
 """
 
 import matplotlib.pyplot as plt
 import numpy as np
 import argparse
+import csv
 from dataclasses import dataclass
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 
 @dataclass
@@ -49,11 +57,20 @@ class RAD:
 class IrisThermometerVisualizer:
     """Visualizer for IRIS economic thermometer"""
 
-    def __init__(self):
+    def __init__(self, cold_threshold: float = 0.85, hot_threshold: float = 1.15):
+        """
+        Initialize visualizer with configurable thresholds
+
+        Args:
+            cold_threshold: r_t threshold below which system is cold (default: 0.85)
+            hot_threshold: r_t threshold above which system is hot (default: 1.15)
+        """
+        self.cold_threshold = cold_threshold
+        self.hot_threshold = hot_threshold
         self.zones = {
-            'cold': (0, 0.85, 'blue', 'COLD\n(Deflation)'),
-            'equilibrium': (0.85, 1.15, 'green', 'EQUILIBRIUM'),
-            'hot': (1.15, 3.0, 'red', 'HOT\n(Inflation)')
+            'cold': (0, cold_threshold, 'blue', 'COLD\n(Deflation)'),
+            'equilibrium': (cold_threshold, hot_threshold, 'green', 'EQUILIBRIUM'),
+            'hot': (hot_threshold, 3.0, 'red', 'HOT\n(Inflation)')
         }
 
     def get_color(self, r_t: float) -> str:
@@ -78,9 +95,11 @@ class IrisThermometerVisualizer:
 
         # Graph 1: Current thermometer reading
         ax1.barh(['Thermometer'], [min(r_t, 3.0)], color=self.get_color(r_t), alpha=0.7)
-        ax1.axvline(x=0.85, color='blue', linestyle='--', linewidth=2, alpha=0.7, label='Cold threshold')
-        ax1.axvline(x=1.15, color='red', linestyle='--', linewidth=2, alpha=0.7, label='Hot threshold')
-        ax1.axvspan(0.85, 1.15, alpha=0.2, color='green', label='Equilibrium zone')
+        ax1.axvline(x=self.cold_threshold, color='blue', linestyle='--', linewidth=2, alpha=0.7,
+                   label=f'Cold threshold ({self.cold_threshold})')
+        ax1.axvline(x=self.hot_threshold, color='red', linestyle='--', linewidth=2, alpha=0.7,
+                   label=f'Hot threshold ({self.hot_threshold})')
+        ax1.axvspan(self.cold_threshold, self.hot_threshold, alpha=0.2, color='green', label='Equilibrium zone')
         ax1.set_xlim(0, 3)
         ax1.set_xlabel('r_t = D_total / V_on_total', fontsize=12)
         ax1.set_title(f'Economic State: r_t = {r_t:.2f}\nZone: {self.get_zone_name(r_t)}',
@@ -128,9 +147,9 @@ class IrisThermometerVisualizer:
             r_t = rad_current.thermometre()
 
             # Apply A20 automatic adjustment
-            if r_t > 1.15:  # Hot → reduce η
+            if r_t > self.hot_threshold:  # Hot → reduce η
                 new_eta = rad_current.eta * (1 - adjustment_rate)
-            elif r_t < 0.85:  # Cold → increase η
+            elif r_t < self.cold_threshold:  # Cold → increase η
                 new_eta = rad_current.eta * (1 + adjustment_rate)
             else:  # Equilibrium → maintain η
                 new_eta = rad_current.eta
@@ -170,9 +189,12 @@ class IrisThermometerVisualizer:
 
         # Plot 1: Thermometer evolution
         ax1.plot(cycles, r_t_values, 'b-', linewidth=2, label='r_t')
-        ax1.axhline(y=0.85, color='blue', linestyle='--', alpha=0.5, label='Cold threshold')
-        ax1.axhline(y=1.15, color='red', linestyle='--', alpha=0.5, label='Hot threshold')
-        ax1.fill_between(cycles, 0.85, 1.15, alpha=0.2, color='green', label='Equilibrium zone')
+        ax1.axhline(y=self.cold_threshold, color='blue', linestyle='--', alpha=0.5,
+                   label=f'Cold threshold ({self.cold_threshold})')
+        ax1.axhline(y=self.hot_threshold, color='red', linestyle='--', alpha=0.5,
+                   label=f'Hot threshold ({self.hot_threshold})')
+        ax1.fill_between(cycles, self.cold_threshold, self.hot_threshold, alpha=0.2, color='green',
+                        label='Equilibrium zone')
         ax1.set_xlabel('Cycle', fontsize=12)
         ax1.set_ylabel('r_t = D_total / V_on_total', fontsize=12)
         ax1.set_title('Economic Thermometer Evolution', fontsize=14, fontweight='bold')
@@ -236,7 +258,8 @@ class IrisThermometerVisualizer:
 
         # Statistics
         r_t_values = [h[1].thermometre() for h in history]
-        equilibrium_cycles = sum(1 for r_t in r_t_values if 0.85 <= r_t <= 1.15)
+        equilibrium_cycles = sum(1 for r_t in r_t_values
+                                if self.cold_threshold <= r_t <= self.hot_threshold)
 
         print(f"\nStatistics:")
         print(f"  Total cycles: {len(history) - 1}")
@@ -247,6 +270,33 @@ class IrisThermometerVisualizer:
         print(f"  Final V growth: {(final.V_on_total - initial.V_on_total) / initial.V_on_total * 100:+.1f}%")
 
         print("\n" + "=" * 60 + "\n")
+
+    def export_to_csv(self, history: List[Tuple[int, RAD]], filename: str):
+        """
+        Export simulation history to CSV file
+
+        Args:
+            history: List of (cycle, RAD) tuples from simulate_evolution
+            filename: Output CSV filename
+        """
+        with open(filename, 'w', newline='') as csvfile:
+            fieldnames = ['cycle', 'r_t', 'D_total', 'V_on_total', 'eta', 'kappa', 'zone']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+            writer.writeheader()
+            for cycle, rad in history:
+                r_t = rad.thermometre()
+                writer.writerow({
+                    'cycle': cycle,
+                    'r_t': round(r_t, 4),
+                    'D_total': round(rad.D_total, 2),
+                    'V_on_total': round(rad.V_on_total, 2),
+                    'eta': round(rad.eta, 4),
+                    'kappa': round(rad.kappa, 4),
+                    'zone': self.get_zone_name(r_t).replace('\n', ' ')
+                })
+
+        print(f"✓ CSV data exported to {filename}")
 
 
 def main():
@@ -265,6 +315,12 @@ def main():
                        help='Number of cycles for simulation (default: 100)')
     parser.add_argument('--adjustment_rate', type=float, default=0.1,
                        help='η adjustment rate (default: 0.1 = 10%%)')
+    parser.add_argument('--cold_threshold', type=float, default=0.85,
+                       help='Cold zone threshold (default: 0.85)')
+    parser.add_argument('--hot_threshold', type=float, default=1.15,
+                       help='Hot zone threshold (default: 1.15)')
+    parser.add_argument('--export_csv', type=str, default=None,
+                       help='Export simulation results to CSV file (requires --simulate)')
 
     args = parser.parse_args()
 
@@ -276,16 +332,24 @@ def main():
         kappa=args.kappa
     )
 
-    # Create visualizer
-    viz = IrisThermometerVisualizer()
+    # Create visualizer with configurable thresholds
+    viz = IrisThermometerVisualizer(
+        cold_threshold=args.cold_threshold,
+        hot_threshold=args.hot_threshold
+    )
 
     if args.simulate:
         # Run simulation
         print(f"Running simulation for {args.cycles} cycles...")
+        print(f"Using thresholds: cold={args.cold_threshold}, hot={args.hot_threshold}")
         history = viz.simulate_evolution(rad, cycles=args.cycles,
                                         adjustment_rate=args.adjustment_rate)
         viz.plot_evolution(history)
         viz.print_summary(history)
+
+        # Export to CSV if requested
+        if args.export_csv:
+            viz.export_to_csv(history, args.export_csv)
     else:
         # Show current state
         viz.plot_current_state(rad)
